@@ -53,3 +53,11 @@ Capture limitation: this initial sample contains the rendered post/quote text an
 ## OpenDecider fp16 smoke comparison
 
 The fp16 build's first download/load took 19.50 s. On the same four short smoke inputs, 12 warm single-post calls had a median of 117.6 ms; three four-post calls had a median of 298.7 ms. The larger build was not faster in this small run on the base M4. This does not refute upstream large-batch results on different hardware and input shapes. Run order was sequential, sample counts are small, and there is no resource-controlled performance conclusion yet. Raw capture: `measurements/opendecider-fp16-smoke.json`.
+
+## Labeled development run
+
+The four recorded formulations are `state` (rule as a JSON state field), `question` (rule in a yes/no question wrapper), `choice` (explicit keep/hide options using the original rule), and `direct` (hand-written task questions for each of the four known instruction types). All retain fixed model inputs when strictness changes. Direct questions are diagnostic and do not demonstrate a general solution for arbitrary instructions.
+
+Human labels are never included in the state sent to the model. The first 20 reviewed cases contain 16 keep, 2 hide, and 2 insufficient-evidence labels; both hide labels are for tech relevance. The held-out pool stays excluded by the run filter. At this sample size, preserving 95% of 16 wanted posts requires preserving all 16; do not interpret a development percentage as a stable generalization estimate.
+
+Use `python3 prototypes/model-evaluation/summarize-development.py` to aggregate the local development captures, then `python3 prototypes/model-evaluation/write-development-report.py` to generate a text-free aggregate report. Raw real-post captures and labels stay ignored. The aggregate records counts, not identifiable post content.
