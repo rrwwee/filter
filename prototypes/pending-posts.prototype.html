@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Feed filtering · interaction prototype</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f5f2;color:#242924;font:15px/1.5 system-ui,sans-serif}main{max-width:1180px;margin:auto;padding:32px 24px}h1{font-size:30px;letter-spacing:-1px;margin:6px 0}h2{font-size:18px;margin:0 0 10px}p{margin:8px 0}.muted,small{color:#667066}.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:#55735e}.panel{background:white;border:1px solid #dce1da;border-radius:12px;padding:20px;margin:18px 0}.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}.split{display:grid;grid-template-columns:1fr 1fr;gap:20px}button,select,textarea{font:inherit;border:1px solid #bfc9bd;border-radius:7px;background:white;padding:8px 12px}button{cursor:pointer}button:hover,button.active{background:#e8f0e7;border-color:#54745d}button.primary{background:#315a40;color:white}button:disabled{opacity:.45;cursor:default}textarea{width:100%;resize:vertical;min-height:70px}label{display:block;font-size:13px;font-weight:600}input[type=range]{width:240px;accent-color:#315a40}.feed{height:420px;overflow:auto;border:1px solid #dce1da;border-radius:8px;background:white}.post{padding:18px;border-bottom:1px solid #e7eae4;min-height:108px}.post b{font-size:14px}.post p{margin:7px 0}.meta{font-size:12px;color:#788277}.status{background:#ecf2e9;padding:8px 12px;border-radius:6px;margin:10px 0;min-height:39px}.empty{padding:40px 18px;color:#667066}.stategrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.stategrid b{display:block;font-size:12px;color:#667066}.stategrid span{display:block}table{border-collapse:collapse;width:100%;font-size:13px;margin-top:16px}td,th{text-align:left;border-bottom:1px solid #e7eae4;padding:8px}.tabs{margin-bottom:12px}#steps button{margin:5px 5px 0 0}.notice{border-left:3px solid #668168;padding-left:12px}code{font-size:12px}summary{cursor:pointer}.controls{justify-content:space-between}.foot{font-size:13px;color:#667066}@media(max-width:600px){.split{grid-template-columns:1fr}.stategrid{grid-template-columns:1fr 1fr}main{padding:18px}.feed{height:350px}}
+</style>
+<main>
+<div class="eyebrow">Throwaway interaction prototype · no real model</div>
+<h1>Read first, or check first?</h1>
+<p class="muted">Compare showing pending posts with waiting for a decision. Explore how strictness, changed instructions, and interruptions affect the same feed. All posts, scores, downloads, and delays are simulated; nothing is saved or sent.</p>
+<section class="panel">
+<h2>Filter controls</h2>
+<label for="instruction">What do you want in your feed?</label><textarea id="instruction">Keep tech posts, but hide dating stories and posts that withhold the point until I click.</textarea>
+<div class="row" style="margin:10px 0 20px"><button class="primary" id="apply">Apply instruction</button><button id="pause">Pause filtering</button><span class="muted" id="editnote"></span></div>
+<div class="row controls"><div><label for="strictness">Strictness · <span id="strictlabel"></span></label><div class="row"><small>Gentler</small><input id="strictness" type="range" min="20" max="80" value="50"><small>Stricter</small></div><small>Changes only the cutoff. The model input and existing scores stay fixed.</small></div>
+<div><label for="delay">Simulated checking time</label><select id="delay"><option value="150">Fast · 150 ms</option><option value="800" selected>Noticeable · 800 ms</option><option value="2500">Slow · 2.5 s</option></select></div></div>
+</section>
+<section class="panel">
+<h2>Try the awkward moments</h2>
+<div class="row tabs" id="tabs"></div><p id="scenario" class="muted"></p><div id="steps"></div>
+<div class="row" style="margin-top:16px"><button id="add" class="primary">Load 3 more posts</button><button id="finish">Finish checking now</button><button id="fail">Simulate model failure</button><button id="retry">Retry</button><button id="reset">Reset comparison</button></div>
+<p id="event" class="notice"></p>
+</section>
+<div class="split"><section><h2>A · Show posts while checking</h2><p class="muted">Read immediately; rejected posts disappear after the decision.</p><div class="status" id="statusA"></div><div class="feed" id="feedA"></div></section><section><h2>B · Wait until checked</h2><p class="muted">Only accepted posts appear; no card-sized placeholders.</p><div class="status" id="statusB"></div><div class="feed" id="feedB"></div></section></div>
+<section class="panel"><h2>What just happened?</h2><div class="stategrid" id="state"></div><p><b>Instruction actually being judged:</b> <span id="activeinstruction"></span></p><details><summary>Inspect the simulated decisions</summary><p class="foot">Keep scores are invented values, not confidence percentages. “Not enough text” stays visible at every setting in this draft; only its default behavior has been agreed. Pause and failure also show every loaded post in this draft. These are proposals to react to.</p><table><thead><tr><th>Post</th><th>Evidence</th><th>Keep score</th><th>Current decision</th></tr></thead><tbody id="decisions"></tbody></table></details></section>
+<p class="foot">Questions to resolve: Which pending behavior feels better at each delay? Should pause/failure restore hidden posts? Should a new instruction take effect only on Apply? Should slider changes update the current feed immediately?</p>
+</main>
+<script>
+// Portable in-memory state logic. Scores are fixtures, never model measurements.
+const FilterDemo=(()=>{
+ const defaultRule='Keep tech posts, but hide dating stories and posts that withhold the point until I click.';
+ const samples=[
+ {id:1,author:'Leah · tools',text:'A small debugging trick: record the inputs at the boundary, then replay them in a minimal test.',score:94},
+ {id:2,author:'Alex · life',text:'The most awkward first date of my life happened last night. Here is how it started…',score:8},
+ {id:3,author:'Sam · work',text:'A practical guide to choosing your first engineering role: team quality matters more than the title.',score:64},
+ {id:4,author:'Morgan · research',text:'Our new attention benchmark shows the model loses earlier constraints after 32k tokens. Full results linked.',score:88},
+ {id:5,author:'Ari · AI',text:'This new model has one fatal flaw. You will not believe it. Click to find out.',score:24},
+ {id:6,author:'Jo · images',text:'Interesting result — see attached.',score:null}
+ ];
+ const initial=(phase='ready')=>({phase,paused:false,rule:defaultRule,version:1,threshold:50,posts:samples.slice(0,3).map(p=>({...p,pending:phase!=='ready'})),runs:phase==='ready'?1:0,last:'Ready for a comparison. Load more posts to see the difference.',batch:0});
+ const score=(p,rule)=>/dating/i.test(rule)&&!/tech/i.test(rule)?(p.id===2?8:p.score===null?null:88):p.score;
+ function reduce(s,a){
+  if(a.type==='RESET')return initial(a.phase);
+  if(a.type==='THRESHOLD')return {...s,threshold:a.value,last:'Strictness changed. Existing scores and model inputs did not change.'};
+  if(a.type==='PAUSE')return {...s,paused:!s.paused,last:s.paused?'Filtering resumed. Existing decisions apply again.':'Filtering paused. Every loaded post is visible again.'};
+  if(a.type==='DOWNLOAD')return {...s,phase:'downloading',last:'Downloading the model automatically. Both draft options leave the feed readable during setup.'};
+  if(a.type==='DOWNLOADED')return {...s,phase:'loading',last:'Download complete. Loading the model into memory; browsing stays available.'};
+  if(a.type==='FAIL')return {...s,phase:'error',last:'Model unavailable. This draft shows all loaded posts and offers Retry.'};
+  if(a.type==='READY')return {...s,phase:'ready',posts:s.posts.map(p=>({...p,pending:true})),runs:s.runs+1,batch:s.batch+1,last:'Model ready. Checking the loaded posts.'};
+  if(a.type==='ADD'){let start=s.posts.length;let more=Array.from({length:3},(_,i)=>({...samples[(start+i)%6],id:start+i+1,source:samples[(start+i)%6].id,pending:true}));return {...s,posts:[...s.posts,...more],runs:s.runs+(s.phase==='ready'&&!s.paused?1:0),batch:s.batch+1,last:'Three new posts arrived. Compare their visibility while checking.'};}
+  if(a.type==='APPLY')return {...s,rule:a.rule,version:s.version+1,posts:s.posts.map(p=>({...p,pending:true})),runs:s.runs+(s.phase==='ready'&&!s.paused?1:0),batch:s.batch+1,last:'New instruction applied. Old decisions are invalid; all loaded posts need new decisions.'};
+  if(a.type==='FINISH'){
+   if(s.phase!=='ready'||s.paused)return s;
+   if(a.version!==undefined&&(a.version!==s.version||a.batch!==s.batch))return s;
+   return {...s,posts:s.posts.map(p=>({...p,pending:false,result:score({...p,id:p.source||p.id},s.rule)})),last:'Checking finished. Rejected posts occupy no space in either feed.'};
+  }return s;
+ }
+ const decision=(s,p)=>s.paused||s.phase!=='ready'?'Shown: filtering inactive':p.pending?'Pending':(p.result===undefined?p.score:p.result)===null?'Shown: not enough text':(p.result===undefined?p.score:p.result)>=s.threshold?'Keep':'Hide';
+ const visible=(s,p,mode)=>s.paused||s.phase!=='ready'||(p.pending?mode==='show':decision(s,p)!=='Hide');
+ return {initial,reduce,decision,visible};
+})();
+</script>
+<script>
+let state=FilterDemo.initial(),scenarioIndex=0,epoch=0;
+const $=id=>document.getElementById(id),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function later(){const version=state.version,batch=state.batch,started=epoch;setTimeout(()=>{if(started===epoch)act({type:'FINISH',version,batch});},Number($('delay').value));}
+function act(a){state=FilterDemo.reduce(state,a);render();if(['ADD','APPLY','READY'].includes(a.type)&&state.phase==='ready'&&!state.paused)later();if(a.type==='PAUSE'&&!state.paused&&state.posts.some(p=>p.pending)&&state.phase==='ready')later();}
+function render(){
+ $('strictness').value=state.threshold;$('strictlabel').textContent=state.threshold<40?'Gentler':state.threshold>60?'Stricter':'Balanced';$('pause').textContent=state.paused?'Resume filtering':'Pause filtering';$('event').textContent=state.last;$('activeinstruction').textContent=state.rule;
+ $('editnote').textContent=$('instruction').value===state.rule?'Applied':'Unsaved edit — current instruction still applies';
+ const pending=state.posts.filter(p=>p.pending).length,hidden=state.posts.filter(p=>FilterDemo.decision(state,p)==='Hide').length;
+ ['A','B'].forEach((side,i)=>{const mode=i?'wait':'show',visible=state.posts.filter(p=>FilterDemo.visible(state,p,mode));$('feed'+side).innerHTML=visible.map(p=>`<article class="post"><b>${esc(p.author)}</b><p>${esc(p.text)}</p><span class="meta">♡ &nbsp; ↗ &nbsp; ···</span></article>`).join('')||'<div class="empty">No accepted posts yet. Your feed is waiting for decisions.</div>';
+ $('status'+side).textContent=state.paused?'Paused · all loaded posts restored':state.phase!=='ready'?({unconfigured:'Not set up · feed remains readable',downloading:'Downloading model · feed remains readable',loading:'Loading model · feed remains readable',error:'Filtering unavailable · feed remains readable'}[state.phase]):pending?`Checking ${pending} posts${i?' · new posts wait offscreen':' · new posts are readable'}`:`Filtering active · ${hidden} posts hidden`;
+ });
+ $('state').innerHTML=[['Model',state.phase],['Filtering',state.paused?'Paused':'Enabled'],['Pending / hidden',pending+' / '+hidden],['Simulated batches',state.runs],['Keep threshold',state.threshold+' (demo scale)'],['Instruction version',state.version],['Loaded posts',state.posts.length],['Storage / network','None']].map(([k,v])=>`<div><b>${k}</b><span>${esc(v)}</span></div>`).join('');
+ $('decisions').innerHTML=state.posts.map(p=>`<tr><td>${esc(p.author)} · ${p.id}</td><td>${p.score===null?'Insufficient':'Text available'}</td><td>${p.pending?'Not scored':(p.result===undefined?p.score:p.result)??'—'}</td><td>${FilterDemo.decision(state,p)}</td></tr>`).join('');
+}
+const scenarios=[
+ ['New posts','Set the delay, then load posts. A shows them immediately and may remove them mid-read. B waits, then inserts only accepted posts.',[['Load posts',()=>act({type:'ADD'})],['Finish checking',()=>act({type:'FINISH'})]]],
+ ['First use','Proposed first-use behavior: automatic download and clear progress; the existing feed remains readable until filtering is ready.',[['Start fresh',()=>{epoch++;state=FilterDemo.initial('unconfigured');render();}],['Begin download',()=>act({type:'DOWNLOAD'})],['Download complete',()=>act({type:'DOWNLOADED'})],['Model ready',()=>{act({type:'ADD'});act({type:'READY'});}]]],
+ ['Strictness','Move the slider. The borderline career post changes visibility immediately without another simulated model batch. Gentler settings restore it.',[['Make stricter',()=>act({type:'THRESHOLD',value:75})],['Make gentler',()=>act({type:'THRESHOLD',value:25})],['Back to balanced',()=>act({type:'THRESHOLD',value:50})]]],
+ ['Changed instruction','Draft edits do nothing until Apply. Applying a different instruction invalidates old decisions: A shows the posts during rechecking; B holds them back.',[['Draft dating-only rule',()=>{$('instruction').value='Hide dating stories.';render();}],['Apply new rule',()=>act({type:'APPLY',rule:$('instruction').value})],['Finish rechecking',()=>act({type:'FINISH'})]]],
+ ['Pause / failure','Proposed behavior: pause or model failure restores every loaded post. Retry rechecks them; late results cannot re-enable a failed or paused filter.',[['Pause',()=>{if(!state.paused)act({type:'PAUSE'});}],['Resume',()=>{if(state.paused)act({type:'PAUSE'});}],['Model fails',()=>act({type:'FAIL'})],['Retry',()=>act({type:'READY'})]]]
+];
+function scenario(i){epoch++;scenarioIndex=i;state=FilterDemo.initial();$('instruction').value=state.rule;$('tabs').innerHTML=scenarios.map((s,n)=>`<button class="${n===i?'active':''}" data-index="${n}">${s[0]}</button>`).join('');$('tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>scenario(Number(b.dataset.index)));$('scenario').textContent=scenarios[i][1];$('steps').innerHTML='';scenarios[i][2].forEach(([label,fn],j)=>{let b=document.createElement('button');b.textContent=(j+1)+'. '+label;b.onclick=fn;$('steps').append(b);});render();}
+ $('apply').onclick=()=>{if($('instruction').value.trim())act({type:'APPLY',rule:$('instruction').value.trim()});};$('instruction').oninput=render;$('pause').onclick=()=>act({type:'PAUSE'});$('strictness').oninput=e=>act({type:'THRESHOLD',value:Number(e.target.value)});$('add').onclick=()=>act({type:'ADD'});$('finish').onclick=()=>act({type:'FINISH'});$('fail').onclick=()=>act({type:'FAIL'});$('retry').onclick=()=>act({type:'READY'});$('reset').onclick=()=>scenario(scenarioIndex);scenario(0);
+</script></html>
