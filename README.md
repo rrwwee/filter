@@ -41,3 +41,9 @@ These short invented posts are not representative performance or quality accepta
 The private capture is never bundled with this branch. The local labeling page reads `local-results/labeling-cases.json` and autosaves `local-results/latest-labels.json`. It does not expose model scores. K / H / U record keep / hide / insufficient evidence, respectively. The first 20 cases are development; the remaining pool must stay out of inference/tuning until the setup is frozen.
 
 `python3 prototypes/model-evaluation/analyze.py local-results/run-....json --labels local-results/latest-labels.json` reports per-condition timing and, when labels exist, selects a threshold using development cases only. It keeps timing repeats from inflating the quality sample. An explicit `--threshold` can evaluate a previously frozen threshold. The script does not imply that class counts or coverage are adequate; inspect these before claiming the 95%/80% gates.
+
+## Second candidate smoke run
+
+Laya multilingual, `@r4ai/laya-web@0.2.0`, source revision `052592a15d198d9ad47da779604259b10b47b7aa`, loaded from the publisher's r4ai hosted export on WebGPU. Its manifest records fp32 weights and fp16 embedding storage. Initial download plus load was 42.49 s; first call 1071.5 ms; the four actual-instruction calls were 81.3, 82.2, 158.5, and 77.5 ms. This small sequence is not a stabilized latency benchmark. The runtime has no multi-state batch API exposed by this adapter; do not interpret sequential calls as a GPU batch.
+
+The same invented cases and fixed question/state template were used. The keep-all control again did not yield uniformly high keep probabilities. Raw results are in `measurements/laya-multilingual-smoke.json`. This may reflect task/template sensitivity; no conclusion about real-feed accuracy or calibration is supported before labeled evaluation.
