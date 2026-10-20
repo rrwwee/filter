@@ -47,3 +47,9 @@ The private capture is never bundled with this branch. The local labeling page r
 Laya multilingual, `@r4ai/laya-web@0.2.0`, source revision `052592a15d198d9ad47da779604259b10b47b7aa`, loaded from the publisher's r4ai hosted export on WebGPU. Its manifest records fp32 weights and fp16 embedding storage. Initial download plus load was 42.49 s; first call 1071.5 ms; the four actual-instruction calls were 81.3, 82.2, 158.5, and 77.5 ms. This small sequence is not a stabilized latency benchmark. The runtime has no multi-state batch API exposed by this adapter; do not interpret sequential calls as a GPU batch.
 
 The same invented cases and fixed question/state template were used. The keep-all control again did not yield uniformly high keep probabilities. Raw results are in `measurements/laya-multilingual-smoke.json`. This may reflect task/template sensitivity; no conclusion about real-feed accuracy or calibration is supported before labeled evaluation.
+
+Capture limitation: this initial sample contains the rendered post/quote text and a Show-more flag. It does not yet provide structured link-card titles or image/video content. Labels apply to the displayed captured evidence; richer link-card extraction needs to be validated before treating results as full feed-context acceptance.
+
+## OpenDecider fp16 smoke comparison
+
+The fp16 build's first download/load took 19.50 s. On the same four short smoke inputs, 12 warm single-post calls had a median of 117.6 ms; three four-post calls had a median of 298.7 ms. The larger build was not faster in this small run on the base M4. This does not refute upstream large-batch results on different hardware and input shapes. Run order was sequential, sample counts are small, and there is no resource-controlled performance conclusion yet. Raw capture: `measurements/opendecider-fp16-smoke.json`.
