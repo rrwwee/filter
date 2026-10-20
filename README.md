@@ -11,7 +11,7 @@ npm ci --ignore-scripts && npm start
 - Inference: http://127.0.0.1:8766/
 - Human labeling: http://127.0.0.1:8766/prototypes/model-evaluation/label.html
 
-The harness downloads model weights from their publisher. Post text is classified locally. Personal feed captures, human labels, and uncurated results live only in ignored `local-results/`; they are never committed. The public measurement file uses invented smoke cases only.
+The harness downloads model weights from their publisher. Post text is classified locally. Personal feed captures, human labels, and uncurated results live only in ignored `local-results/`; they are never committed. Public raw measurement captures use invented smoke cases only; real-feed reports contain aggregate measurements without post text, source URLs, or individual labels.
 
 ## Inputs and experimental separation
 
@@ -61,3 +61,9 @@ The four recorded formulations are `state` (rule as a JSON state field), `questi
 Human labels are never included in the state sent to the model. The first 20 reviewed cases contain 16 keep, 2 hide, and 2 insufficient-evidence labels; both hide labels are for tech relevance. The held-out pool stays excluded by the run filter. At this sample size, preserving 95% of 16 wanted posts requires preserving all 16; do not interpret a development percentage as a stable generalization estimate.
 
 Use `python3 prototypes/model-evaluation/summarize-development.py` to aggregate the local development captures, then `python3 prototypes/model-evaluation/write-development-report.py` to generate a text-free aggregate report. Raw real-post captures and labels stay ignored. The aggregate records counts, not identifiable post content.
+
+## Verbatim instruction comparison
+
+The **Run minimal wrappers + A/B controls** button evaluates six more formats: a question after the unchanged instruction, a question before it, a fixed question with `{filter, post}` state, explicit keep/hide choices, and neutral A/B choices with both label mappings. It runs the empty-instruction, explicit keep-all, and actual-instruction conditions for each format. No semantic rewriting or per-rule question translation occurs in these six formats. Human labels are still excluded from model inputs, and held-out cases remain excluded from inference.
+
+The generated [development report](measurements/development-report.md) and browser report cover these formats alongside the earlier diagnostics. Probability normalization is not evidence of empirical calibration. See [model internals](docs/research/decision-model-internals.md) and [closed model disclosures](docs/research/closed-decision-model-disclosures.md) for primary-source implementation details and limitations.

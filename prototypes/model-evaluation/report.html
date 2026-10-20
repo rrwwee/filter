@@ -1,1 +1,58 @@
-<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Development evaluation results</title><style>body{font:15px/1.5 system-ui;background:#f5f5f2;color:#233129;max-width:1000px;margin:30px auto;padding:0 24px}h1{font-size:28px}.panel{background:white;border:1px solid #d4dfd1;border-radius:12px;padding:20px;margin:18px 0}table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:8px;border-bottom:1px solid #e0e5dc;font-size:14px}.muted{color:#63705d}.verdict{font-size:20px;font-weight:600}strong{color:#294f35}</style><h1>First development comparison</h1><p class="muted">20 labeled For You previews · 16 keep / 2 hide / 2 uncertain · GPU on Apple M4, 16 GB</p><div class="panel"><p class="verdict">No passing generic instruction format yet.</p><p>At thresholds preserving all 16 wanted posts, all tested generic formats hide 0 of the 2 unwanted posts. Hand-written direct questions hide 1 of 2. Hiding both with direct questions retains 15 of 16 wanted posts (93.75%).</p><p><strong>This is development evidence, not held-out accuracy.</strong> Both hide examples concern tech relevance. The remaining pool has not been scored.</p></div><div class="panel"><table><tr><th>Candidate</th><th>Template</th><th>Wanted kept</th><th>Unwanted hidden</th><th>Median call</th></tr><tr><td>Laya multilingual</td><td>choice</td><td>16/16</td><td>0/2</td><td>78 ms</td></tr><tr><td>Laya multilingual</td><td>direct</td><td>16/16</td><td>1/2</td><td>81 ms</td></tr><tr><td>Laya multilingual</td><td>question</td><td>16/16</td><td>0/2</td><td>80 ms</td></tr><tr><td>Laya multilingual</td><td>state</td><td>16/16</td><td>0/2</td><td>82 ms</td></tr><tr><td>OpenDecider fp16</td><td>choice</td><td>16/16</td><td>0/2</td><td>98 ms</td></tr><tr><td>OpenDecider fp16</td><td>direct</td><td>16/16</td><td>1/2</td><td>109 ms</td></tr><tr><td>OpenDecider fp16</td><td>question</td><td>16/16</td><td>0/2</td><td>108 ms</td></tr><tr><td>OpenDecider fp16</td><td>state</td><td>16/16</td><td>0/2</td><td>113 ms</td></tr><tr><td>OpenDecider q8f16</td><td>choice</td><td>16/16</td><td>0/2</td><td>107 ms</td></tr><tr><td>OpenDecider q8f16</td><td>direct</td><td>16/16</td><td>1/2</td><td>100 ms</td></tr><tr><td>OpenDecider q8f16</td><td>question</td><td>16/16</td><td>0/2</td><td>104 ms</td></tr><tr><td>OpenDecider q8f16</td><td>state</td><td>16/16</td><td>0/2</td><td>109 ms</td></tr></table><p class="muted">Threshold chosen separately per row to preserve all wanted examples. Direct questions are a diagnostic, not a general solution for arbitrary instructions. Two uncertain examples excluded from quality counts.</p></div><div class="panel"><h2>Timing on real development posts</h2><p>OpenDecider q8f16: median 119 ms for one post; 440 ms for four; 981 ms for a full eight-post batch. Effective throughput: about 8.1, 7.9, and 7.5 posts/s, respectively.</p><p>OpenDecider fp16: median 135 ms for one post; 500 ms for four; 986 ms for a full eight-post batch. About 7.3–7.5 posts/s.</p><p class="muted">Three repetitions. Mixed instruction lengths and padding affect batches. Times are standalone-page model calls, not complete extension or scrolling latency; memory and long-running behavior still need measurement.</p></div>
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Development evaluation results</title><style>body{font:15px/1.5 system-ui;background:#f5f5f2;color:#233129;max-width:1000px;margin:30px auto;padding:0 24px}h1{font-size:28px}.panel{background:white;border:1px solid #d4dfd1;border-radius:12px;padding:20px;margin:18px 0}table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:8px;border-bottom:1px solid #e0e5dc;font-size:14px}.muted{color:#63705d}.verdict{font-size:20px;font-weight:600}strong{color:#294f35}</style>
+<h1>Verbatim-instruction comparison</h1><p class="muted">20 labeled For You previews · 16 keep / 2 hide / 2 uncertain · Apple M4, WebGPU</p>
+<div class="panel"><p class="verdict">Development evidence only; no model selected.</p><p>Each cell counts unwanted posts hidden at a threshold preserving all 16 wanted posts. The target requires hiding both unwanted posts. Both are tech-relevance cases; broader rule coverage and held-out testing remain outstanding.</p><p>All six new formats preserve the user instruction verbatim. Empty-instruction and keep-all baselines run separately.</p></div>
+<div class="panel"><h2>New minimal wrappers</h2><table><tr><th>Format</th><th>OpenDecider q8f16</th><th>OpenDecider fp16</th><th>Laya multilingual</th></tr>
+<tr><td>minimal-prefix</td>
+<td>0/2 hidden · 91 ms</td>
+<td>0/2 hidden · 111 ms</td>
+<td>0/2 hidden · 80 ms</td>
+</tr>
+<tr><td>minimal-suffix</td>
+<td>0/2 hidden · 91 ms</td>
+<td>0/2 hidden · 136 ms</td>
+<td>0/2 hidden · 81 ms</td>
+</tr>
+<tr><td>minimal-state</td>
+<td>0/2 hidden · 99 ms</td>
+<td>0/2 hidden · 138 ms</td>
+<td>0/2 hidden · 93 ms</td>
+</tr>
+<tr><td>minimal-choice</td>
+<td>0/2 hidden · 110 ms</td>
+<td>0/2 hidden · 140 ms</td>
+<td>0/2 hidden · 87 ms</td>
+</tr>
+<tr><td>minimal-ab</td>
+<td>0/2 hidden · 107 ms</td>
+<td>0/2 hidden · 126 ms</td>
+<td>0/2 hidden · 84 ms</td>
+</tr>
+<tr><td>minimal-ba</td>
+<td>0/2 hidden · 104 ms</td>
+<td>0/2 hidden · 138 ms</td>
+<td>0/2 hidden · 93 ms</td>
+</tr>
+</table><p class="muted">Median single-post actual-instruction call shown. Each row uses its own development-selected threshold; these are not production thresholds.</p></div>
+<div class="panel"><h2>Earlier diagnostic comparison</h2><table><tr><th>Format</th><th>OpenDecider q8f16</th><th>OpenDecider fp16</th><th>Laya multilingual</th></tr>
+<tr><td>state</td>
+<td>0/2 hidden · 109 ms</td>
+<td>0/2 hidden · 113 ms</td>
+<td>0/2 hidden · 82 ms</td>
+</tr>
+<tr><td>question</td>
+<td>0/2 hidden · 104 ms</td>
+<td>0/2 hidden · 108 ms</td>
+<td>0/2 hidden · 80 ms</td>
+</tr>
+<tr><td>choice</td>
+<td>0/2 hidden · 107 ms</td>
+<td>0/2 hidden · 98 ms</td>
+<td>0/2 hidden · 78 ms</td>
+</tr>
+<tr><td>direct</td>
+<td>1/2 hidden · 100 ms</td>
+<td>1/2 hidden · 109 ms</td>
+<td>1/2 hidden · 81 ms</td>
+</tr>
+</table><p class="muted">Median single-post actual-instruction call shown. Each row uses its own development-selected threshold; these are not production thresholds.</p></div>
+<div class="panel"><h2>How to read this</h2><p>Prefix/suffix move the fixed question around the unchanged instruction. State uses filter and post fields. Choice names the keep/hide answers. AB and BA reverse the meanings attached to neutral answer keys.</p><p>Direct questions rewrite each known rule into a hand-written diagnostic question; they are not a general solution for arbitrary user instructions.</p><p>Strictness only changes the threshold. Softmax normalization is not evidence of calibration, and temperature scaling cannot fix an incorrect ranking.</p><p class="muted">Private text and labels remain local. Held-out cases have not been scored. Standalone-page timing excludes extension integration, sustained scrolling, and peak memory.</p></div>
