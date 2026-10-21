@@ -1,0 +1,575 @@
+{
+  "description": "Aggregate-only local fine-tuning diagnostics. Assistant judgments; correlated instruction/post pairs, not independent examples. No production selection.",
+  "format_robust": {
+    "slices": {
+      "All fresh test pairs": {
+        "base": {
+          "n": 1755,
+          "posts": 47,
+          "accuracy": 0.5327635327635327,
+          "wanted": 999,
+          "wanted_kept": 674,
+          "unwanted": 756,
+          "unwanted_hidden": 261,
+          "auc": 0.5270746937413604,
+          "unwanted_fraction_visible": 0.4234388366124893
+        },
+        "previous": {
+          "n": 1755,
+          "posts": 47,
+          "accuracy": 0.6717948717948717,
+          "wanted": 999,
+          "wanted_kept": 571,
+          "unwanted": 756,
+          "unwanted_hidden": 608,
+          "auc": 0.7586237030681475,
+          "unwanted_fraction_visible": 0.20584144645340752
+        },
+        "new": {
+          "n": 1755,
+          "posts": 47,
+          "accuracy": 0.6660968660968661,
+          "wanted": 999,
+          "wanted_kept": 812,
+          "unwanted": 756,
+          "unwanted_hidden": 357,
+          "auc": 0.697239567609938,
+          "unwanted_fraction_visible": 0.32947976878612717
+        }
+      },
+      "Fresh real feed": {
+        "base": {
+          "n": 539,
+          "posts": 15,
+          "accuracy": 0.5454545454545454,
+          "wanted": 337,
+          "wanted_kept": 199,
+          "unwanted": 202,
+          "unwanted_hidden": 95,
+          "auc": 0.5324940505920028,
+          "unwanted_fraction_visible": 0.34967320261437906
+        },
+        "previous": {
+          "n": 539,
+          "posts": 15,
+          "accuracy": 0.6920222634508348,
+          "wanted": 337,
+          "wanted_kept": 209,
+          "unwanted": 202,
+          "unwanted_hidden": 164,
+          "auc": 0.7758174927285013,
+          "unwanted_fraction_visible": 0.15384615384615385
+        },
+        "new": {
+          "n": 539,
+          "posts": 15,
+          "accuracy": 0.6289424860853432,
+          "wanted": 337,
+          "wanted_kept": 259,
+          "unwanted": 202,
+          "unwanted_hidden": 80,
+          "auc": 0.6223815259864265,
+          "unwanted_fraction_visible": 0.32020997375328086
+        }
+      },
+      "Authored edge cases": {
+        "base": {
+          "n": 1216,
+          "posts": 32,
+          "accuracy": 0.5271381578947368,
+          "wanted": 662,
+          "wanted_kept": 475,
+          "unwanted": 554,
+          "unwanted_hidden": 166,
+          "auc": 0.5320301678536761,
+          "unwanted_fraction_visible": 0.4495944380069525
+        },
+        "previous": {
+          "n": 1216,
+          "posts": 32,
+          "accuracy": 0.662828947368421,
+          "wanted": 662,
+          "wanted_kept": 362,
+          "unwanted": 554,
+          "unwanted_hidden": 444,
+          "auc": 0.7471669920490364,
+          "unwanted_fraction_visible": 0.2330508474576271
+        },
+        "new": {
+          "n": 1216,
+          "posts": 32,
+          "accuracy": 0.6825657894736842,
+          "wanted": 662,
+          "wanted_kept": 553,
+          "unwanted": 554,
+          "unwanted_hidden": 277,
+          "auc": 0.7297681241615496,
+          "unwanted_fraction_visible": 0.3337349397590361
+        }
+      },
+      "Combinations": {
+        "base": {
+          "n": 273,
+          "posts": 46,
+          "accuracy": 0.5311355311355311,
+          "wanted": 213,
+          "wanted_kept": 145,
+          "unwanted": 60,
+          "unwanted_hidden": 0,
+          "auc": 0.3594679186228482,
+          "unwanted_fraction_visible": 0.2926829268292683
+        },
+        "previous": {
+          "n": 273,
+          "posts": 46,
+          "accuracy": 0.5787545787545788,
+          "wanted": 213,
+          "wanted_kept": 111,
+          "unwanted": 60,
+          "unwanted_hidden": 47,
+          "auc": 0.7461658841940532,
+          "unwanted_fraction_visible": 0.10483870967741936
+        },
+        "new": {
+          "n": 273,
+          "posts": 46,
+          "accuracy": 0.7985347985347986,
+          "wanted": 213,
+          "wanted_kept": 190,
+          "unwanted": 60,
+          "unwanted_hidden": 28,
+          "auc": 0.7332550860719875,
+          "unwanted_fraction_visible": 0.14414414414414414
+        }
+      },
+      "Both conditions required": {
+        "base": {
+          "n": 84,
+          "posts": 23,
+          "accuracy": 0.7380952380952381,
+          "wanted": 78,
+          "wanted_kept": 60,
+          "unwanted": 6,
+          "unwanted_hidden": 2,
+          "auc": 0.6965811965811965,
+          "unwanted_fraction_visible": 0.0625
+        },
+        "previous": {
+          "n": 84,
+          "posts": 23,
+          "accuracy": 0.5952380952380952,
+          "wanted": 78,
+          "wanted_kept": 45,
+          "unwanted": 6,
+          "unwanted_hidden": 5,
+          "auc": 0.655982905982906,
+          "unwanted_fraction_visible": 0.021739130434782608
+        },
+        "new": {
+          "n": 84,
+          "posts": 23,
+          "accuracy": 0.6190476190476191,
+          "wanted": 78,
+          "wanted_kept": 48,
+          "unwanted": 6,
+          "unwanted_hidden": 4,
+          "auc": 0.6645299145299145,
+          "unwanted_fraction_visible": 0.04
+        }
+      },
+      "Exceptions": {
+        "base": {
+          "n": 255,
+          "posts": 46,
+          "accuracy": 0.7450980392156863,
+          "wanted": 237,
+          "wanted_kept": 183,
+          "unwanted": 18,
+          "unwanted_hidden": 7,
+          "auc": 0.6812001875293014,
+          "unwanted_fraction_visible": 0.05670103092783505
+        },
+        "previous": {
+          "n": 255,
+          "posts": 46,
+          "accuracy": 0.6352941176470588,
+          "wanted": 237,
+          "wanted_kept": 150,
+          "unwanted": 18,
+          "unwanted_hidden": 12,
+          "auc": 0.703469292076887,
+          "unwanted_fraction_visible": 0.038461538461538464
+        },
+        "new": {
+          "n": 255,
+          "posts": 46,
+          "accuracy": 0.792156862745098,
+          "wanted": 237,
+          "wanted_kept": 193,
+          "unwanted": 18,
+          "unwanted_hidden": 9,
+          "auc": 0.7979371776840132,
+          "unwanted_fraction_visible": 0.04455445544554455
+        }
+      },
+      "Explicit overriding exclusions": {
+        "base": {
+          "n": 354,
+          "posts": 47,
+          "accuracy": 0.3870056497175141,
+          "wanted": 90,
+          "wanted_kept": 56,
+          "unwanted": 264,
+          "unwanted_hidden": 81,
+          "auc": 0.4241161616161616,
+          "unwanted_fraction_visible": 0.7656903765690377
+        },
+        "previous": {
+          "n": 354,
+          "posts": 47,
+          "accuracy": 0.6045197740112994,
+          "wanted": 90,
+          "wanted_kept": 28,
+          "unwanted": 264,
+          "unwanted_hidden": 186,
+          "auc": 0.5321969696969697,
+          "unwanted_fraction_visible": 0.7358490566037735
+        },
+        "new": {
+          "n": 354,
+          "posts": 47,
+          "accuracy": 0.4717514124293785,
+          "wanted": 90,
+          "wanted_kept": 82,
+          "unwanted": 264,
+          "unwanted_hidden": 85,
+          "auc": 0.6414141414141414,
+          "unwanted_fraction_visible": 0.685823754789272
+        }
+      },
+      "New combinations": {},
+      "Original four-rule instruction": {
+        "base": {
+          "n": 132,
+          "posts": 44,
+          "accuracy": 0.3333333333333333,
+          "wanted": 54,
+          "wanted_kept": 33,
+          "unwanted": 78,
+          "unwanted_hidden": 11,
+          "auc": 0.33048433048433046,
+          "unwanted_fraction_visible": 0.67
+        },
+        "previous": {
+          "n": 132,
+          "posts": 44,
+          "accuracy": 0.5151515151515151,
+          "wanted": 54,
+          "wanted_kept": 27,
+          "unwanted": 78,
+          "unwanted_hidden": 41,
+          "auc": 0.5142450142450142,
+          "unwanted_fraction_visible": 0.578125
+        },
+        "new": {
+          "n": 132,
+          "posts": 44,
+          "accuracy": 0.4393939393939394,
+          "wanted": 54,
+          "wanted_kept": 54,
+          "unwanted": 78,
+          "unwanted_hidden": 4,
+          "auc": 0.5467711301044634,
+          "unwanted_fraction_visible": 0.578125
+        }
+      },
+      "Bullet lists": {
+        "base": {
+          "n": 555,
+          "posts": 47,
+          "accuracy": 0.5477477477477477,
+          "wanted": 318,
+          "wanted_kept": 225,
+          "unwanted": 237,
+          "unwanted_hidden": 79,
+          "auc": 0.5577050659448558,
+          "unwanted_fraction_visible": 0.412532637075718
+        },
+        "previous": {
+          "n": 555,
+          "posts": 47,
+          "accuracy": 0.7765765765765765,
+          "wanted": 318,
+          "wanted_kept": 240,
+          "unwanted": 237,
+          "unwanted_hidden": 191,
+          "auc": 0.8571504391900857,
+          "unwanted_fraction_visible": 0.16083916083916083
+        },
+        "new": {
+          "n": 555,
+          "posts": 47,
+          "accuracy": 0.69009009009009,
+          "wanted": 318,
+          "wanted_kept": 249,
+          "unwanted": 237,
+          "unwanted_hidden": 134,
+          "auc": 0.7249688188307725,
+          "unwanted_fraction_visible": 0.29261363636363635
+        }
+      },
+      "Paragraphs": {
+        "base": {
+          "n": 555,
+          "posts": 47,
+          "accuracy": 0.5369369369369369,
+          "wanted": 318,
+          "wanted_kept": 223,
+          "unwanted": 237,
+          "unwanted_hidden": 75,
+          "auc": 0.5622163840458563,
+          "unwanted_fraction_visible": 0.42077922077922075
+        },
+        "previous": {
+          "n": 555,
+          "posts": 47,
+          "accuracy": 0.781981981981982,
+          "wanted": 318,
+          "wanted_kept": 238,
+          "unwanted": 237,
+          "unwanted_hidden": 196,
+          "auc": 0.8567789188758856,
+          "unwanted_fraction_visible": 0.14695340501792115
+        },
+        "new": {
+          "n": 555,
+          "posts": 47,
+          "accuracy": 0.6630630630630631,
+          "wanted": 318,
+          "wanted_kept": 246,
+          "unwanted": 237,
+          "unwanted_hidden": 122,
+          "auc": 0.6975691956585197,
+          "unwanted_fraction_visible": 0.3185595567867036
+        }
+      },
+      "Paraphrased instructions": {
+        "base": {
+          "n": 555,
+          "posts": 47,
+          "accuracy": 0.5009009009009009,
+          "wanted": 318,
+          "wanted_kept": 205,
+          "unwanted": 237,
+          "unwanted_hidden": 73,
+          "auc": 0.4427327972825943,
+          "unwanted_fraction_visible": 0.4444444444444444
+        },
+        "previous": {
+          "n": 555,
+          "posts": 47,
+          "accuracy": 0.4846846846846847,
+          "wanted": 318,
+          "wanted_kept": 88,
+          "unwanted": 237,
+          "unwanted_hidden": 181,
+          "auc": 0.509765676830401,
+          "unwanted_fraction_visible": 0.3888888888888889
+        },
+        "new": {
+          "n": 555,
+          "posts": 47,
+          "accuracy": 0.5981981981981982,
+          "wanted": 318,
+          "wanted_kept": 273,
+          "unwanted": 237,
+          "unwanted_hidden": 59,
+          "auc": 0.5976302311387097,
+          "unwanted_fraction_visible": 0.3946784922394678
+        }
+      }
+    },
+    "pairs": {
+      "base": {
+        "correct": 11,
+        "total": 45,
+        "ordered": 35
+      },
+      "previous": {
+        "correct": 1,
+        "total": 45,
+        "ordered": 20
+      },
+      "new": {
+        "correct": 41,
+        "total": 45,
+        "ordered": 44
+      }
+    },
+    "selected_epoch": 2,
+    "gentle_keep_threshold": 0.02243426257793546,
+    "operating_points": {
+      "Default": {
+        "All fresh test pairs": {
+          "n": 1755,
+          "posts": 47,
+          "accuracy": 0.6660968660968661,
+          "wanted": 999,
+          "wanted_kept": 812,
+          "unwanted": 756,
+          "unwanted_hidden": 357,
+          "auc": 0.697239567609938,
+          "unwanted_fraction_visible": 0.32947976878612717
+        },
+        "Fresh real feed": {
+          "n": 539,
+          "posts": 15,
+          "accuracy": 0.6289424860853432,
+          "wanted": 337,
+          "wanted_kept": 259,
+          "unwanted": 202,
+          "unwanted_hidden": 80,
+          "auc": 0.6223815259864265,
+          "unwanted_fraction_visible": 0.32020997375328086
+        }
+      },
+      "95% validation retention": {
+        "All fresh test pairs": {
+          "n": 1755,
+          "posts": 47,
+          "accuracy": 0.607977207977208,
+          "wanted": 999,
+          "wanted_kept": 957,
+          "unwanted": 756,
+          "unwanted_hidden": 110,
+          "auc": 0.697239567609938,
+          "unwanted_fraction_visible": 0.4029943855271366
+        },
+        "Fresh real feed": {
+          "n": 539,
+          "posts": 15,
+          "accuracy": 0.6382189239332097,
+          "wanted": 337,
+          "wanted_kept": 319,
+          "unwanted": 202,
+          "unwanted_hidden": 25,
+          "auc": 0.6223815259864265,
+          "unwanted_fraction_visible": 0.35685483870967744
+        }
+      },
+      "85% validation retention": {
+        "All fresh test pairs": {
+          "n": 1755,
+          "posts": 47,
+          "accuracy": 0.6512820512820513,
+          "wanted": 999,
+          "wanted_kept": 683,
+          "unwanted": 756,
+          "unwanted_hidden": 460,
+          "auc": 0.697239567609938,
+          "unwanted_fraction_visible": 0.3023493360572012
+        },
+        "Fresh real feed": {
+          "n": 539,
+          "posts": 15,
+          "accuracy": 0.5862708719851577,
+          "wanted": 337,
+          "wanted_kept": 206,
+          "unwanted": 202,
+          "unwanted_hidden": 110,
+          "auc": 0.6223815259864265,
+          "unwanted_fraction_visible": 0.3087248322147651
+        }
+      },
+      "70% validation retention": {
+        "All fresh test pairs": {
+          "n": 1755,
+          "posts": 47,
+          "accuracy": 0.5994301994301995,
+          "wanted": 999,
+          "wanted_kept": 448,
+          "unwanted": 756,
+          "unwanted_hidden": 604,
+          "auc": 0.697239567609938,
+          "unwanted_fraction_visible": 0.25333333333333335
+        },
+        "Fresh real feed": {
+          "n": 539,
+          "posts": 15,
+          "accuracy": 0.5398886827458256,
+          "wanted": 337,
+          "wanted_kept": 144,
+          "unwanted": 202,
+          "unwanted_hidden": 147,
+          "auc": 0.6223815259864265,
+          "unwanted_fraction_visible": 0.27638190954773867
+        }
+      }
+    }
+  },
+  "rule_probe": {
+    "statistics": {
+      "all": {
+        "combined": {
+          "posts": 44,
+          "wanted": 18,
+          "kept_wanted": 18,
+          "unwanted": 26,
+          "hidden_unwanted": 1,
+          "accuracy": 0.4318181818181818,
+          "auc": 0.5170940170940171,
+          "unwanted_share_visible": 0.5813953488372093
+        },
+        "independent_OR": {
+          "posts": 44,
+          "wanted": 18,
+          "kept_wanted": 0,
+          "unwanted": 26,
+          "hidden_unwanted": 26,
+          "accuracy": 0.5909090909090909,
+          "auc": 0.38461538461538464,
+          "unwanted_share_visible": null
+        }
+      },
+      "real_feed": {
+        "combined": {
+          "posts": 12,
+          "wanted": 7,
+          "kept_wanted": 7,
+          "unwanted": 5,
+          "hidden_unwanted": 1,
+          "accuracy": 0.6666666666666666,
+          "auc": 0.6857142857142857,
+          "unwanted_share_visible": 0.36363636363636365
+        },
+        "independent_OR": {
+          "posts": 12,
+          "wanted": 7,
+          "kept_wanted": 0,
+          "unwanted": 5,
+          "hidden_unwanted": 5,
+          "accuracy": 0.4166666666666667,
+          "auc": 0.45714285714285713,
+          "unwanted_share_visible": null
+        }
+      }
+    },
+    "timings": {
+      "combined": {
+        "p50_ms": 26.758436993986834,
+        "p95_ms": 41.16762524790829,
+        "n": 36
+      },
+      "independent_serial": {
+        "p50_ms": 96.1389584990684,
+        "p95_ms": 135.61563574694446,
+        "n": 36
+      },
+      "independent_batch4": {
+        "p50_ms": 56.1715209914837,
+        "p95_ms": 92.82367700143368,
+        "n": 36
+      }
+    }
+  }
+}

@@ -61,6 +61,14 @@ save_checkpoint(model,tok,save_cfg,str(ROOT/'overfit-checkpoint'))
 if results['stages']['overfit']['overfit']['metrics']['accuracy']<1:
  print('Overfit did not memorize every example; stopping before broadening.',flush=True)
  raise RuntimeError('Head-only overfit failed to reach 100% on training examples.')
+# The overfit stage checks the pipeline only. Start the broader experiment
+# independently from the original checkpoint, with a fresh optimizer.
+del model,best;gc.collect()
+if DEVICE.type=='mps':torch.mps.empty_cache()
+model,tok,cfg=load_checkpoint(str(ROOT/'base'));model.to(DEVICE)
+for p in model.encoder.parameters():p.requires_grad_(False)
+model.eval()
+results['broader_initialization']='original base checkpoint; independent of overfit stage'
 # Broader distribution: select on validation, never on the test split.
 initial=evaluate('validation')['metrics'];best={'loss':initial['loss'],'state':head_copy(),'epoch':0};history=[];stale=0
 def broad_callback(epoch,loss):
