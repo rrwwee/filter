@@ -1,0 +1,148 @@
+{
+  "scope": "Synthetic diagnostic: official runtime CPU WASM q8, default app state wrapper, combined diagnostic policy; not browser q8f16 or real-feed quality",
+  "model": {
+    "total": 24,
+    "scored": 24,
+    "coverage": 1,
+    "wanted": 12,
+    "wantedScored": 12,
+    "falseHides": 2,
+    "wantedFalseHideRate": 0.16666666666666666,
+    "unwanted": 12,
+    "unwantedScored": 12,
+    "unwantedRemoved": 7,
+    "unwantedRemovalRate": 0.5833333333333334
+  },
+  "keyword": {
+    "total": 24,
+    "scored": 24,
+    "coverage": 1,
+    "wanted": 12,
+    "wantedScored": 12,
+    "falseHides": 2,
+    "wantedFalseHideRate": 0.16666666666666666,
+    "unwanted": 12,
+    "unwantedScored": 12,
+    "unwantedRemoved": 0,
+    "unwantedRemovalRate": 0
+  },
+  "keepAll": {
+    "total": 24,
+    "scored": 24,
+    "coverage": 1,
+    "wanted": 12,
+    "wantedScored": 12,
+    "falseHides": 0,
+    "wantedFalseHideRate": 0,
+    "unwanted": 12,
+    "unwantedScored": 12,
+    "unwantedRemoved": 0,
+    "unwantedRemovalRate": 0
+  },
+  "slices": {
+    "personal-dating": {
+      "total": 4,
+      "scored": 4,
+      "coverage": 1,
+      "wanted": 0,
+      "wantedScored": 0,
+      "falseHides": 0,
+      "wantedFalseHideRate": null,
+      "unwanted": 4,
+      "unwantedScored": 4,
+      "unwantedRemoved": 3,
+      "unwantedRemovalRate": 0.75
+    },
+    "withheld-clickbait": {
+      "total": 4,
+      "scored": 4,
+      "coverage": 1,
+      "wanted": 0,
+      "wantedScored": 0,
+      "falseHides": 0,
+      "wantedFalseHideRate": null,
+      "unwanted": 4,
+      "unwantedScored": 4,
+      "unwantedRemoved": 1,
+      "unwantedRemovalRate": 0.25
+    },
+    "off-topic": {
+      "total": 4,
+      "scored": 4,
+      "coverage": 1,
+      "wanted": 0,
+      "wantedScored": 0,
+      "falseHides": 0,
+      "wantedFalseHideRate": null,
+      "unwanted": 4,
+      "unwantedScored": 4,
+      "unwantedRemoved": 3,
+      "unwantedRemovalRate": 0.75
+    },
+    "dating-app-technical": {
+      "total": 2,
+      "scored": 2,
+      "coverage": 1,
+      "wanted": 2,
+      "wantedScored": 2,
+      "falseHides": 0,
+      "wantedFalseHideRate": 0,
+      "unwanted": 0,
+      "unwantedScored": 0,
+      "unwantedRemoved": 0,
+      "unwantedRemovalRate": null
+    },
+    "substantive-link": {
+      "total": 2,
+      "scored": 2,
+      "coverage": 1,
+      "wanted": 2,
+      "wantedScored": 2,
+      "falseHides": 1,
+      "wantedFalseHideRate": 0.5,
+      "unwanted": 0,
+      "unwantedScored": 0,
+      "unwantedRemoved": 0,
+      "unwantedRemovalRate": null
+    }
+  },
+  "provenance": {
+    "runtime": "@opendecider/web@0.9.0",
+    "node": "v24.19.0",
+    "device": "wasm",
+    "dtype": "q8",
+    "revision": "53da62af62275ff5076e29b962dd965f38107c50",
+    "modelFile": {
+      "path": "onnx/model_q8.onnx",
+      "bytes": 594006972,
+      "sha256": "3920323e41bb107f28566be7b45e6cb55a2bdc1951b27a6e62625857e22542c4"
+    },
+    "tokenizer": {
+      "path": "tokenizer.web.json",
+      "bytes": 1570653,
+      "sha256": "fd4146f0082d98fd1fc03bf41349f4d1eed478987ce9a64addc1654dfcad14ee"
+    },
+    "casesSha256": "860fe2b1a652d1840d423186d35c4f41107ce83cbd24be758e09d55f53f59d0a",
+    "specificationSha256": "a3caa88a40afb22e20b0478e36ca601846094007f9e9cf82f97eeec8a8476334",
+    "sourceArchiveSha256": "109f97284cdb3021772a326a3e6dcf4b84a9e685ec35dae3444e84a92faa86af",
+    "modelBytesNotIncluded": true
+  },
+  "cost": {
+    "callCount": 24,
+    "totalCallMs": 74773.23152299998,
+    "medianCallMs": 3093.8202930000007,
+    "loadMs": 3694.7985089999997,
+    "peakRssKiB": 2421464,
+    "modelAndTokenizerBytes": 595577625
+  },
+  "validation": {
+    "complete": true,
+    "sourceJoin": true,
+    "rawProbabilityAndThreshold": true,
+    "evidenceHashes": true,
+    "warningsReported": 0,
+    "truncationsReported": 0,
+    "diagnosticFieldLimit": "Raw outputs omit warning and truncation fields; zero reported is not proof of no truncation."
+  },
+  "threshold": 0.5
+}
