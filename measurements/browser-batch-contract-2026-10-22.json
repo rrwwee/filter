@@ -1,0 +1,174 @@
+{
+  "schema": 1,
+  "kind": "browser-batch-contract",
+  "sourceCommit": "88da9a11c9488296ebcf6d5c0fc30b7c8624e18b",
+  "model": {
+    "runtime": "@opendecider/web@0.9.0",
+    "device": "webgpu",
+    "dtype": "q8f16",
+    "revision": "53da62af62275ff5076e29b962dd965f38107c50",
+    "meta": {
+      "name": "opendecider-nano-onnx-q8f16",
+      "kind": "local",
+      "device": "webgpu",
+      "dtype": "q8f16",
+      "repo": "manjunathshiva/opendecider-nano-ONNX",
+      "revision": "53da62af62275ff5076e29b962dd965f38107c50"
+    }
+  },
+  "rawCaptureSha256": "feb8c3ebd7b2eb05847aa17c42247fe939085033aab5d494999494e0c45d6714",
+  "driverSha256": "c083903c6bd50ae89ca7d574df2c64bd5725fcba23659549e6e178fc186e572e",
+  "parityTolerance": 0.001,
+  "checks": {
+    "oneFourRowForwardPass": true,
+    "cardinality": true,
+    "tokenCountOrder": true,
+    "duplicateEquality": true,
+    "numericalParity": false,
+    "modelReleased": true
+  },
+  "maximumAbsoluteDelta": 0.0023085272651041655,
+  "rows": [
+    {
+      "id": "bait-first",
+      "batchProbability": 0.4647193728668166,
+      "sequentialProbability": 0.46702790013192075,
+      "absoluteDelta": 0.0023085272651041655,
+      "batchTokens": 96,
+      "sequentialTokens": 96
+    },
+    {
+      "id": "tech",
+      "batchProbability": 0.5044554484736958,
+      "sequentialProbability": 0.5044554484736958,
+      "absoluteDelta": 0.0,
+      "batchTokens": 103,
+      "sequentialTokens": 103
+    },
+    {
+      "id": "bait-duplicate",
+      "batchProbability": 0.4647193728668166,
+      "sequentialProbability": 0.46702790013192075,
+      "absoluteDelta": 0.0023085272651041655,
+      "batchTokens": 96,
+      "sequentialTokens": 96
+    },
+    {
+      "id": "dating",
+      "batchProbability": 0.4672102137359968,
+      "sequentialProbability": 0.4672102137359968,
+      "absoluteDelta": 0.0,
+      "batchTokens": 101,
+      "sequentialTokens": 101
+    }
+  ],
+  "traces": [
+    {
+      "phase": "batch",
+      "shape": [
+        4,
+        103
+      ],
+      "rows": [
+        {
+          "tokens": 96,
+          "sha256": "f57bb3b1800ec54ea02afe0ab1177e349549e2ebf22a374e30779a6c2fb8f5f5"
+        },
+        {
+          "tokens": 96,
+          "sha256": "f57bb3b1800ec54ea02afe0ab1177e349549e2ebf22a374e30779a6c2fb8f5f5"
+        },
+        {
+          "tokens": 101,
+          "sha256": "37d0f95406fde33079949315a62a84e1a481395658ac7c89118daba812290a42"
+        },
+        {
+          "tokens": 103,
+          "sha256": "d1a4430598770eba665a83ee8b9f987447ca9c338d233dfd9c05455cfbd541e1"
+        }
+      ]
+    },
+    {
+      "phase": "sequential",
+      "shape": [
+        1,
+        96
+      ],
+      "rows": [
+        {
+          "tokens": 96,
+          "sha256": "f57bb3b1800ec54ea02afe0ab1177e349549e2ebf22a374e30779a6c2fb8f5f5"
+        }
+      ]
+    },
+    {
+      "phase": "sequential",
+      "shape": [
+        1,
+        103
+      ],
+      "rows": [
+        {
+          "tokens": 103,
+          "sha256": "d1a4430598770eba665a83ee8b9f987447ca9c338d233dfd9c05455cfbd541e1"
+        }
+      ]
+    },
+    {
+      "phase": "sequential",
+      "shape": [
+        1,
+        96
+      ],
+      "rows": [
+        {
+          "tokens": 96,
+          "sha256": "f57bb3b1800ec54ea02afe0ab1177e349549e2ebf22a374e30779a6c2fb8f5f5"
+        }
+      ]
+    },
+    {
+      "phase": "sequential",
+      "shape": [
+        1,
+        101
+      ],
+      "rows": [
+        {
+          "tokens": 101,
+          "sha256": "37d0f95406fde33079949315a62a84e1a481395658ac7c89118daba812290a42"
+        }
+      ]
+    }
+  ],
+  "internalRowInputCandidates": [
+    [
+      0,
+      2
+    ],
+    [
+      0,
+      2
+    ],
+    [
+      3
+    ],
+    [
+      1
+    ]
+  ],
+  "warnings": {
+    "batch": [
+      [],
+      [],
+      [],
+      []
+    ],
+    "sequential": [
+      [],
+      [],
+      [],
+      []
+    ]
+  }
+}
