@@ -54,7 +54,7 @@ test('choice outputs require both finite normalized options', () => {
 });
 
 import {readFile} from 'node:fs/promises';
-async function harness(outputs, saveStatus=200) {
+async function harness(outputs, saveStatus=200, development) {
   const elements = new Map();
   const defaults = {template:'state',candidate:'opendecider',device:'wasm',dtype:'q8',threshold:'50',rule:'Keep technology posts.'};
   const element = id => {
@@ -66,7 +66,7 @@ async function harness(outputs, saveStatus=200) {
   const args={document:{getElementById:element},navigator:{userAgent:'test',hardwareConcurrency:1},performance,crossOriginIsolated:true,
     loadNano:async()=>model,loadLaya:async()=>{throw Error('Not used');},noul:()=>({}),choice:()=>({}),REVISION:'stub',MODELS:{},
     validateCases,runnableCases,directQuestion,decodeBatch,
-    fetch:async(url,options)=>{if(url!=='/save')throw Error('Unexpected network');saved=JSON.parse(options.body);return {ok:saveStatus===200,status:saveStatus,json:async()=>({name:'stub-run.json'})};}};
+    fetch:async(url,options)=>{if(url==='/local-results/latest-labels.json' && development)return development();if(url!=='/save')throw Error('Unexpected network');saved=JSON.parse(options.body);return {ok:saveStatus===200,status:saveStatus,json:async()=>({name:'stub-run.json'})};}};
   const source=(await readFile(new URL('../prototypes/model-evaluation/app.mjs',import.meta.url),'utf8')).replace(/^import .*;\n/gm,'');
   const AsyncFunction=Object.getPrototypeOf(async function(){}).constructor;
   await new AsyncFunction(...Object.keys(args),source)(...Object.values(args));
@@ -95,4 +95,30 @@ test('browser wiring does not append partial bad batches',async()=>{
 test('run save failures are logged without claiming a saved file',async()=>{
  const h=await harness([yes(.8)],500);await h.element('save').onclick();
  assert.match(h.element('log').textContent,/Save failed: HTTP 500/);assert.doesNotMatch(h.element('log').textContent,/Saved locally:/);
+});
+
+
+test('development input read failures preserve cases, report errors, and allow retry',async()=>{
+ let response;
+ const h=await harness([yes(.8)],200,async()=>{if(response instanceof Error)throw response;return response;});
+ for(const failure of [
+  new Error('Network unavailable'),
+  {ok:false,status:503,json:async()=>({})},
+  {ok:true,status:200,json:async()=>{throw new SyntaxError('Malformed saved JSON');}},
+  {ok:true,status:200,json:async()=>({cases:[{id:'bad',split:'development'}]})},
+ ]) {
+  response=failure;
+  const before=h.element('log').textContent.length;
+  await h.element('development').onclick();
+  assert.match(h.element('log').textContent.slice(before),/^ERROR: .+\n$/);
+  assert.match(h.element('caseinfo').textContent,/4 cases/);
+  assert.equal(h.calls(),0);
+ }
+ assert.match(h.element('log').textContent,/HTTP 503/);
+ assert.match(h.element('log').textContent,/Malformed saved JSON/);
+ response={ok:true,status:200,json:async()=>({cases:[{...c('reviewed','development'),reviewed:true}, {...c('held','heldout'),reviewed:true}]})};
+ await h.element('development').onclick();
+ assert.match(h.element('caseinfo').textContent,/1 cases/);
+ await h.element('save').onclick();
+ assert.deepEqual(h.saved().cases.map(x=>x.id),['reviewed']);
 });

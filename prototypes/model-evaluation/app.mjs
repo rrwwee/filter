@@ -69,6 +69,14 @@ $('bullets').onclick=async()=>{
   }
  }catch(e){log('ERROR: '+e.stack);}finally{lock(false);}
 };
-$('unload').onclick=async()=>{if(model)await model.backend.dispose();model=null;$('status').textContent='Model released';};$('baseline').onclick=()=>run('baseline');$('batch').onclick=()=>run('batch');$('actual').onclick=()=>run('actual');$('threshold').oninput=render;$('save').onclick=()=>save().catch(e=>log('ERROR: '+e.message));$('development').onclick=async()=>{const d=await(await fetch('/local-results/latest-labels.json')).json();try{cases=validateCases(d.cases).filter(c=>c.split==='development'&&c.reviewed);showCases();}catch(e){log('ERROR: '+e.message);}};$('smoke').onclick=()=>{cases=smoke;showCases();};$('file').onchange=async e=>{try{if(!e.target.files[0])return;const loaded=JSON.parse(await e.target.files[0].text());cases=validateCases(loaded);showCases();}catch(error){log('ERROR: '+error.message);}};
+$('unload').onclick=async()=>{if(model)await model.backend.dispose();model=null;$('status').textContent='Model released';};$('baseline').onclick=()=>run('baseline');$('batch').onclick=()=>run('batch');$('actual').onclick=()=>run('actual');$('threshold').oninput=render;$('save').onclick=()=>save().catch(e=>log('ERROR: '+e.message));$('development').onclick=async()=>{
+ try {
+  const response=await fetch('/local-results/latest-labels.json');
+  if(!response.ok)throw Error('Could not load reviewed development cases: HTTP '+response.status);
+  const data=await response.json();
+  const nextCases=validateCases(data.cases).filter(c=>c.split==='development'&&c.reviewed);
+  cases=nextCases;showCases();
+ }catch(error){log('ERROR: '+error.message);}
+};$('smoke').onclick=()=>{cases=smoke;showCases();};$('file').onchange=async e=>{try{if(!e.target.files[0])return;const loaded=JSON.parse(await e.target.files[0].text());cases=validateCases(loaded);showCases();}catch(error){log('ERROR: '+error.message);}};
 const adapter=await navigator.gpu?.requestAdapter();$('env').textContent=`WebGPU: ${adapter?'available':'unavailable'} · cross-origin isolated: ${crossOriginIsolated} · CPU logical cores: ${navigator.hardwareConcurrency} · browser: ${navigator.userAgent}`;
 showCases();render();
