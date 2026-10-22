@@ -12,7 +12,7 @@ GitHub Issues is the durable technical problem buffer. The existing [planning ma
 
 The skill is a normal repository-local skill under `.agents/skills/`. Verify discovery in the actual Codex session; a lead running from an external task directory can read the file explicitly, but file creation alone is not proof of automatic discovery. The local checkout path, lead thread identity, dirty-checkout state, and active worktree belong in the lead's local handoff, not a portable repository configuration.
 
-No Stop hook, trust setting, scheduler, or runtime security policy is installed by this slice. Checks run explicitly and in CI. A future hook proposal must identify supported host behavior, obtain any required trust approval through the normal UI, and demonstrate a real invocation before claiming activation. Existing unrelated user configuration is not changed.
+The base workflow runs checks explicitly and in CI. A proposed opt-in Stop hook and its pending activation gates are documented in [Stop-hook activation](stop-hook-activation.md); no trust setting, scheduler, or runtime security policy is changed. Activation requires supported host behavior, any required trust approval through the normal UI, and a real invocation before claiming success. Existing unrelated user configuration is not changed.
 
 ## Sources used, not installed
 
