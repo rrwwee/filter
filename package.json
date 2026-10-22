@@ -3,7 +3,8 @@
   "type": "module",
   "scripts": {
     "start": "node prototypes/model-evaluation/server.mjs",
-    "test": "node --test tests/*.mjs && python3 -m unittest discover -s tests -v"
+    "test": "node --test tests/*.mjs && python3 -m unittest discover -s tests -v",
+    "check": "python3 tools/check.py"
   },
   "dependencies": {
     "@opendecider/web": "0.9.0",
