@@ -11,6 +11,15 @@ npm ci --ignore-scripts && npm start
 - Inference: http://127.0.0.1:8766/
 - Human labeling: http://127.0.0.1:8766/prototypes/model-evaluation/label.html
 
+The server accepts loopback hosts and same-origin browser requests only. It
+serves the harness pages, the required runtime distribution assets, and the
+three labeling/diagnostic JSON inputs; it does not expose the checkout or
+arbitrary result files. Symlinked assets are refused. JSON saves are limited to
+8 MiB, serialized, and installed atomically. Label saves must match the source
+case identities. If saved progress is malformed, labeling stays disabled rather
+than overwriting it. Rapid label changes coalesce behind one active save, and
+failed HTTP responses are displayed as failures.
+
 The harness downloads model weights from their publisher. Post text is classified locally. Personal feed captures, human labels, and uncurated results live only in ignored `local-results/`; they are never committed. Public raw measurement captures use invented smoke cases only; real-feed reports contain aggregate measurements without post text, source URLs, or individual labels.
 
 ## Inputs and experimental separation
