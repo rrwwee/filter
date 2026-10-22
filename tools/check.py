@@ -29,4 +29,7 @@ def main():
 
 
 if __name__ == '__main__':
+    if len(sys.argv) > 1:
+        from publication import main as publication_main
+        raise SystemExit(publication_main(sys.argv[1:]))
     raise SystemExit(main())
