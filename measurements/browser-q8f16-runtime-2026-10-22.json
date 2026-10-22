@@ -1,0 +1,76 @@
+{
+  "schema": 1,
+  "kind": "browser-runtime-smoke",
+  "source_commit": "086dbeb2e96df360dd9a10dd4aee91eca28d9b68",
+  "raw_capture_sha256": "8cd120608092c3e8a8fbb1868e5de0e1d8321a845157a236879027a121af0f24",
+  "runtime": "@opendecider/web@0.9.0",
+  "loadInfo": {
+    "candidate": "opendecider",
+    "device": "webgpu",
+    "dtype": "q8f16",
+    "revision": "53da62af62275ff5076e29b962dd965f38107c50",
+    "loadMs": 2074.3200000226498,
+    "modelMeta": {
+      "name": "opendecider-nano-onnx-q8f16",
+      "kind": "local",
+      "device": "webgpu",
+      "dtype": "q8f16",
+      "repo": "manjunathshiva/opendecider-nano-ONNX",
+      "revision": "53da62af62275ff5076e29b962dd965f38107c50"
+    }
+  },
+  "environment": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "hardwareConcurrency": 10,
+    "crossOriginIsolated": true
+  },
+  "assets": {
+    "revision": "53da62af62275ff5076e29b962dd965f38107c50",
+    "tokenizer_sha256": "fd4146f0082d98fd1fc03bf41349f4d1eed478987ce9a64addc1654dfcad14ee",
+    "model_sha256": "80436dbed1a284548b5e6c3975bb26df81fb493fc4e64629e5a6ef490bf0e0ae",
+    "model_bytes": 469218222
+  },
+  "loading": "existing browser cache; external connections blocked by test-server CSP",
+  "fixture": "four unmodified invented smoke cases from app.mjs",
+  "calls": "four sequential calls with one post each; not a four-item batch",
+  "template": "state",
+  "condition": "actual",
+  "threshold": 0.5,
+  "rows": [
+    {
+      "id": "smoke-1",
+      "pKeep": 0.5044554484736958,
+      "callMs": 184.83500000834465,
+      "batchSize": 1,
+      "warnings": []
+    },
+    {
+      "id": "smoke-2",
+      "pKeep": 0.4672102137359968,
+      "callMs": 129.6850000023842,
+      "batchSize": 1,
+      "warnings": []
+    },
+    {
+      "id": "smoke-3",
+      "pKeep": 0.46702790013192075,
+      "callMs": 89.625,
+      "batchSize": 1,
+      "warnings": []
+    },
+    {
+      "id": "smoke-4",
+      "pKeep": 0.4963989880436623,
+      "callMs": 82.01499998569489,
+      "batchSize": 1,
+      "warnings": []
+    }
+  ],
+  "limits": [
+    "runtime contract smoke only",
+    "no independent labels or quality conclusion",
+    "not a representative latency benchmark",
+    "cold download, cache write and fresh-origin loading untested",
+    "WASM and other model/dtype paths untested"
+  ]
+}
