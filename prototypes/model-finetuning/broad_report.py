@@ -1,3 +1,9 @@
+"""Historical broad-experiment report snapshot, not a current integrity gate.
+
+This script predates evaluation_contract.py and does not validate all source,
+population, provenance, and calibration-record invariants enforced there.
+Its output must not be presented as a newly integrity-validated comparison.
+"""
 import collections,json,pathlib
 root=pathlib.Path(__file__).resolve().parents[2]/'local-results/finetune-broad'
 r=json.loads((root/'results.json').read_text());r['stages']['head_only']=r['stages'].pop('tuned')
