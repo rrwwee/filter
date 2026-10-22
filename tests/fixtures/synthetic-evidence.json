@@ -1,0 +1,11 @@
+{
+  "description": "Invented counts for software tests only. Not model measurements.",
+  "format_robust": {
+    "slices": {
+      "Synthetic repeated posts": {
+        "fixture": {"n": 6, "posts": 2, "wanted": 3, "wanted_kept": 2, "unwanted": 3, "unwanted_hidden": 1, "accuracy": 0.5, "unwanted_fraction_visible": 0.5}
+      },
+      "Empty diagnostic": {}
+    }
+  }
+}

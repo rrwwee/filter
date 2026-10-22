@@ -60,3 +60,40 @@ Do not rebuild the dataset during or after a run being compared: its hashes are 
 The first compositional run exposed a design confound: each training wording variant always used one layout. Its fresh test is preserved as a failed diagnostic. `build_format_robust.py` fixes this by crossing wording with bullet and paragraph layouts, including explicit if/otherwise instructions. It uses a second newly captured/authored final holdout, checked against both the old training corpus and the first fresh test. The latter never enters this training set.
 
 Run the shared trainer with `--directory finetune-format-robust --epochs 3 --micro-batch 4 --seed 20261023`, and the shared reporter with `--directory finetune-format-robust`. Both runs start from the original base. The data, final model, outputs, and reports remain under ignored local-results directories.
+
+## Public evidence check (no weights or private data required)
+
+From a fresh checkout, using Python 3's standard library only:
+
+```sh
+python3 prototypes/model-finetuning/audit_public_evidence.py
+python3 -m unittest discover -s tests -v
+```
+
+The first command prints a deterministic JSON audit of the committed
+`measurements/fine-tuning-aggregate.json`. It checks count bounds, per-model slice
+population consistency, accuracy, and the unwanted fraction of visible pairs.
+It exits nonzero for inconsistent arithmetic or invalid input. Empty slices are
+warnings, not silently omitted or scored as successful. Rates with absent class
+denominators are reported as null. The `records` output lists expanded pairs
+and distinct posts separately; slices overlap and must not be summed.
+
+On the committed final aggregate, 33 populated model/slice records pass these
+arithmetic checks, but `New combinations` is empty. Therefore the final aggregate
+does not support a novel-combinations result. The overall final set has 1,755
+expanded pairs from only 47 posts, including 15 real-feed posts. Neither pair
+counts nor distinct-post counts alone establish independent sampling. The
+paraphrased-instruction slice uses a wording family present during training;
+it is not an unseen-wording evaluation.
+
+`tests/fixtures/synthetic-evidence.json` contains invented counts solely to test
+the audit software. It is not a new dataset, model run, or replication of the
+published experiment. The committed aggregate regression test protects the
+current evidence interpretation; intentionally changing the published results
+requires reviewing and updating those expectations.
+
+This check does not reproduce AUC, raw predictions, uncertainty estimates,
+split separation, label validity, model provenance, or training. Those require
+private artifacts not included here. It does not choose a model or production
+threshold. A passing audit means internally consistent published counts, not a
+successful filter or an independently reproduced experiment.

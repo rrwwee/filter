@@ -77,3 +77,18 @@ The **Evaluate 15 bullet combinations** button uses the unchanged bullet text wi
 ## Latest fine-tuning evidence
 
 See [the aggregate fine-tuning report](measurements/fine-tuning-report.md) for broader instruction training, independent-rule probes, corrected experiment controls, and remaining decisions. Later experiments use assistant judgments under user authorization; the initial human-label workflow above is historical. Private raw artifacts stay local.
+
+## Reproduce the public evidence checks
+
+No model download, GPU, private feed capture, or additional dependency is needed:
+
+```sh
+python3 prototypes/model-finetuning/audit_public_evidence.py
+python3 -m unittest discover -s tests -v
+```
+
+These checks validate published aggregate arithmetic, not training or model
+quality. They flag the empty final `New combinations` slice and distinguish
+correlated instruction/post pairs from post counts. See the
+[fine-tuning README](prototypes/model-finetuning/README.md#public-evidence-check-no-weights-or-private-data-required)
+for the synthetic fixture and limits of reproducibility.
