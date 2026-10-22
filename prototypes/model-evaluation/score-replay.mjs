@@ -41,8 +41,46 @@ export function reduceReplay(state,action,catalog) {
     }catch(error){return {...state,phase:'error',rule:action.rule,version:state.version+1,posts:state.posts.map(p=>({...p,pending:true})),message:error.message};}
   }
   if(action.type==='ADD'&&state.phase==='ready')return {...state,posts:state.available.slice(0,Math.min(state.posts.length+3,state.available.length)).map(p=>state.posts.find(x=>x.id===p.id)||p),message:'Loaded the next recorded posts.'};
+  if(action.type==='RESOLVE'&&state.phase==='ready'&&!state.paused&&action.version===state.version&&state.posts.find(p=>p.pending)?.id===action.id){
+    const posts=state.posts.map(p=>p.id===action.id?{...p,pending:false}:p);
+    return {...state,posts,message:posts.some(p=>p.pending)?'Next recorded result displayed; sequential timing is simulated.':'Recorded results displayed. No live model inference occurred.'};
+  }
   if(action.type==='FINISH'&&state.phase==='ready'&&!state.paused&&action.version===state.version)return {...state,posts:state.posts.map(p=>({...p,pending:false})),message:'Recorded results displayed. No live model inference occurred.'};
   return state;
+}
+
+// One simulated call at a time. Pausing freezes its remaining delay; unrelated
+// renders and loading more posts must not restart an already scheduled call.
+export function createReplayScheduler({getState,dispatch,getMode,now=()=>performance.now(),setTimer=setTimeout,clearTimer=clearTimeout}) {
+  let timer=null,active=null,generation=0;
+  function stop(preserve=false){
+    if(timer!==null){
+      clearTimer(timer);timer=null;generation++;
+      if(preserve&&active)active.remaining=Math.max(0,active.remaining-(now()-active.started));
+    }
+    if(!preserve)active=null;
+  }
+  function sync(){
+    const state=getState(),next=state.posts.find(p=>p.pending),mode=getMode();
+    if(state.phase!=='ready'||!next){stop();return;}
+    if(!active||active.version!==state.version||active.id!==next.id||active.mode!==mode){
+      stop();active={version:state.version,id:next.id,mode,remaining:mode==='recorded'?next.callMs:0};
+    }
+    if(state.paused){stop(true);return;}
+    if(timer!==null)return;
+    const job=active,token=++generation;
+    job.started=now();
+    timer=setTimer(()=>{
+      if(token!==generation)return;
+      timer=null;active=null;
+      const current=getState();
+      if(current.phase==='ready'&&!current.paused&&current.version===job.version&&current.posts.find(p=>p.pending)?.id===job.id){
+        dispatch({type:'RESOLVE',id:job.id,version:job.version});
+      }
+      sync();
+    },job.remaining);
+  }
+  return {sync,cancel:()=>stop()};
 }
 export const decision=(state,p)=>state.paused||state.phase!=='ready'?'readable':p.pending?'pending':p.pKeep>=state.threshold?'keep':'hide';
 export const visible=(state,p,mode)=>decision(state,p)==='readable'||(p.pending?mode==='show':decision(state,p)!=='hide');
