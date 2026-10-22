@@ -1,0 +1,17 @@
+{
+  "description": "Filter completion checks and one final review continuation.",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/tools/stop_review.py\"",
+            "timeout": 60,
+            "statusMessage": "Checking Filter completion"
+          }
+        ]
+      }
+    ]
+  }
+}
