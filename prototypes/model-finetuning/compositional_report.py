@@ -1,8 +1,10 @@
 import argparse,collections,json,pathlib,math
+from evaluation_contract import read_dataset, validate_results
 
 parser=argparse.ArgumentParser();parser.add_argument('--directory',default='finetune-compositional');args=parser.parse_args()
 ROOT=pathlib.Path(__file__).resolve().parents[2]/'local-results'/args.directory
-r=json.loads((ROOT/'results.json').read_text());manifest=json.loads((ROOT/'manifest.json').read_text())
+r=json.loads((ROOT/'results.json').read_text());manifest,data=read_dataset(ROOT)
+validate_results(manifest,data,r)
 src={x['id']:x for x in map(json.loads,(ROOT/'test.jsonl').read_text().splitlines())}
 
 def summary(rows,t=.5):
@@ -10,7 +12,7 @@ def summary(rows,t=.5):
  keep=sum(x['p_hide']<t for x in w);hide=sum(x['p_hide']>=t for x in u);n=len(rows)
  auc=sum((a['p_hide']<b['p_hide'])+.5*(a['p_hide']==b['p_hide']) for a in w for b in u)/(len(w)*len(u)) if w and u else None
  visible=keep+len(u)-hide
- return {'n':n,'posts':len({x['post_id'] for x in rows}),'accuracy':(keep+hide)/n,'wanted':len(w),'wanted_kept':keep,'unwanted':len(u),'unwanted_hidden':hide,'auc':auc,'unwanted_fraction_visible':(len(u)-hide)/visible if visible else None}
+ return {'n':n,'posts':len({x['post_id'] for x in rows}),'accuracy':(keep+hide)/n if n else None,'wanted':len(w),'wanted_kept':keep,'unwanted':len(u),'unwanted_hidden':hide,'auc':auc,'unwanted_fraction_visible':(len(u)-hide)/visible if visible else None}
 
 def pairs(rows):
  g=collections.defaultdict(list)
@@ -28,9 +30,14 @@ def agreement(rows,other):
 
 names={'base':'Original','previous':'Previous full fine-tune','new':'New compositional fine-tune'}
 slices={'All fresh test pairs':lambda x:True,'Fresh real feed':lambda x:x['origin']=='fresh-real-feed','Authored edge cases':lambda x:x['origin']=='authored-synthetic','Combinations':lambda x:x['family']=='combination','Both conditions required':lambda x:x['family']=='conjunction','Exceptions':lambda x:x['family']=='exception','Explicit overriding exclusions':lambda x:x['family']=='override','New combinations':lambda x:x['family']=='novel_combination','Original four-rule instruction':lambda x:x['policy_id']=='original_four','Bullet lists':lambda x:x['style']=='bullets','Paragraphs':lambda x:x['style']=='paragraph' and not x['pair_id'],'Paraphrased instructions':lambda x:x['style']=='casual'}
-aggregate={};lines=['# Compositional filtering: fresh held-out evaluation','','The new full-model run starts from the original pinned Laya multilingual checkpoint. The previous fine-tune is only an evaluation comparator. Training emphasizes opposite instructions, combinations, conjunctions, exceptions, and exclusions that override an allowed topic.','','## Data and isolation','']
+aggregate={};lines=['# Compositional filtering: recorded test comparison','','The recorded plan describes initialization from the original base checkpoint, with the previous fine-tune used only as an evaluation comparator. This report does not verify upstream checkpoint origin or historical holdout freshness. Training emphasizes opposite instructions, combinations, conjunctions, exceptions, and exclusions that override an allowed topic.','','## Data and isolation','']
+identities=r.get('checkpoint_identities', {})
+if not all(isinstance(identities.get(name), dict) and identities[name].get('sha256') for name in ('base','previous','new')) or not r.get('plan', {}).get('runtime_versions'):
+ lines+=['Provenance gap: checkpoint fingerprints or runtime versions are absent from these saved results. Current local files cannot retroactively establish which bytes produced historical scores.','']
+else:
+ lines+=['Checkpoint fingerprints and runtime versions are recorded. Fingerprints identify local bytes; they do not establish upstream authorship or independently prove the execution history.','']
 for split,c in manifest['counts'].items():lines.append(f'- {split}: {c["rows"]} instruction/post pairs across {c["posts"]} posts; {c["hide"]} hide labels.')
-lines+=['','The fresh test includes newly authored cases and new For You feed captures. Overlapping posts from all earlier experiments were excluded; details are in the manifest. Earlier experiment posts may be used for training, but no validation or test post text occurs in training. All labels are assistant judgments, not user-confirmed ground truth. Media-only ambiguity is excluded for affected criteria. Synthetic results are not evidence of natural-feed prevalence. Repeated instructions per post are correlated observations.','','Dataset SHA-256 hashes are recorded in `manifest.json` and verified before and after training. No test inference occurred until checkpoint selection was complete. Neither model selection nor the gentle threshold uses the fresh test.','','## Results at the unchanged 0.5 hide-score threshold','','| Slice | Model | Accuracy | Wanted retained | Unwanted hidden | Ranking AUC |','|---|---|---:|---:|---:|---:|']
+lines+=['','The dataset manifest describes authored cases and feed captures. The raw-data audit verifies exact normalized text and post-ID separation across the supplied splits; it does not prove historical freshness, semantic near-duplicate exclusion, or separation from absent earlier experiments. All labels are assistant judgments, not user-confirmed ground truth. Media-only ambiguity is excluded for affected criteria. Synthetic results are not evidence of natural-feed prevalence. Repeated instructions per post are correlated observations.','','Dataset SHA-256 hashes are recorded in `manifest.json` and verified before and after training. The recorded plan states that test inference followed checkpoint selection. This report cannot independently prove historical execution order. The reported retention thresholds below use validation scores only.','','## Results at the unchanged 0.5 hide-score threshold','','| Slice | Model | Accuracy | Wanted retained | Unwanted hidden | Ranking AUC |','|---|---|---:|---:|---:|---:|']
 for slice_name,pred in slices.items():
  aggregate[slice_name]={}
  for model in ['base','previous','new']:
@@ -38,6 +45,8 @@ for slice_name,pred in slices.items():
   if not selected:continue
   s=summary(selected);aggregate[slice_name][model]=s
   lines.append(f'| {slice_name} | {names[model]} | {s["accuracy"]:.1%} | {s["wanted_kept"]}/{s["wanted"]} | {s["unwanted_hidden"]}/{s["unwanted"]} | '+(f'{s["auc"]:.3f}' if s['auc'] is not None else 'n/a')+' |')
+empty_slices=[name for name,models in aggregate.items() if not models]
+if empty_slices:lines+=['','Missing evidence: '+', '.join(empty_slices)+'. No result is established for these empty slices.']
 lines+=['','## Instruction and formatting checks','','Both decisions must be right for an opposite pair to pass. Score ordering is also reported so a threshold shift is distinguishable from failure to follow the instruction. Formatting agreement can include two matching wrong answers; interpret it alongside accuracy.','','| Model | Opposite pairs both correct | Opposite scores correctly ordered | Bullet/paragraph agreement | Bullet/new-wording agreement |','|---|---:|---:|---:|---:|']
 pair_metrics={}
 for model in ['base','previous','new']:
@@ -56,8 +65,12 @@ for setting,t in operating_points.items():
   s=summary([x for x in r['stages']['new']['rows'] if pred(x)],t);q=s['unwanted_fraction_visible'];operating_results[setting][label]=s
   lines.append(f'| {setting} | {label} | {1-t:.4f} | {s["wanted_kept"]}/{s["wanted"]} | {s["unwanted_hidden"]}/{s["unwanted"]} | '+(f'{q:.1%}' if q is not None else 'n/a')+' |')
 lines+=['','## Training and limitations','',f'Selected epoch {r["selected_epoch"]} from {r["epochs_run"]}. Training time: {r["training_seconds"]:.1f} seconds. Selection gives equal weight to validation macro family-balanced accuracy and opposite-pair accuracy; ties prefer lower log loss. Label smoothing is 0.05. The reloaded checkpoint preserved every validation decision (max probability difference {r["reload_validation_max_delta"]:.6f}).','','Full history, settings, dataset hashes, uncalibrated raw logits/probabilities, and the checkpoint remain local. The change combines data, sampling, regularization, and model-selection changes; it does not isolate their individual effects. These are small post-level test sets, despite the larger number of instruction pairs.','']
-a=aggregate['All fresh test pairs'];core=aggregate['Original four-rule instruction']['new']
-lines+=['','## Interpretation','',f"Overall accuracy is {a['new']['accuracy']:.1%} for the new model versus {a['previous']['accuracy']:.1%} for the previous model; aggregate ranking AUC is {a['new']['auc']:.3f} versus {a['previous']['auc']:.3f}. The new model improves opposite-instruction behavior, but it is not an unqualified improvement in filtering quality.",'',f"The original four-rule combined instruction remains weak: the new model keeps {core['wanted_kept']}/{core['wanted']} wanted pairs but hides only {core['unwanted_hidden']}/{core['unwanted']} unwanted pairs at the default threshold. This should not be hidden by better single-rule results.",'','The retention/removal table shows useful imperfect operating choices. Counts expand a small set of posts under multiple instructions, so they should not be interpreted as independent natural-feed observations.']
+a=aggregate['All fresh test pairs'];core=aggregate['Original four-rule instruction'].get('new')
+lines+=['','## Interpretation','',f"Overall accuracy is {a['new']['accuracy']:.1%} for the new model versus {a['previous']['accuracy']:.1%} for the previous model. These values alone do not establish an overall improvement in filtering quality.",'',f"Opposite pairs both correct: new {pair_metrics['new']['correct']}/{pair_metrics['new']['total']}; previous {pair_metrics['previous']['correct']}/{pair_metrics['previous']['total']}."]
+if core:
+ lines+=['',f"At the default threshold, the original four-rule instruction keeps {core['wanted_kept']}/{core['wanted']} wanted pairs and hides {core['unwanted_hidden']}/{core['unwanted']} unwanted pairs. Interpret these counts against the intended acceptance criteria, not an automatic success/failure label."]
+else:lines+=['','The original four-rule instruction has no test coverage.']
+lines+=['','Counts expand a small set of posts under multiple instructions; they are not independent natural-feed observations. Semantic label correctness and real deployment quality remain unverified by this integrity check.']
 (ROOT/'report.md').write_text('\n'.join(lines)+'\n')
 (ROOT/'summary.json').write_text(json.dumps({'slices':aggregate,'pairs':pair_metrics,'selected_epoch':r['selected_epoch'],'gentle_keep_threshold':1-r['gentle_p_hide_threshold'],'operating_points':operating_results},indent=2))
 # Local, inspectable failure cases; deliberately not published.
