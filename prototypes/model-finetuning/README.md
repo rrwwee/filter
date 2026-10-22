@@ -2,6 +2,19 @@
 
 This is a disposable experiment, not a production training pipeline. All examples, outputs, logs, dependencies, and model checkpoints remain in ignored `local-results/finetune-promotions/` and `local-results/training-env/`. Do not publish these files.
 
+## Historical experiment snapshots
+
+The original `promotions_experiment.py`, `promotions_full_control.py`,
+`broad_experiment.py`, `broad_full_control.py`, `broad_report.py`, and `report.py`
+are historical snapshots. They do not all enforce the current integrity gates;
+retaining them is not a certification of their reports or training controls.
+The rule-probe scripts likewise record earlier diagnostics, not fresh acceptance
+evidence. Current source/population checks live in `evaluation_contract.py` and
+are used by the compositional and frozen-replay paths. Even those checks do not
+establish independent label truth or historical holdout isolation.
+
+## Original promotion experiment
+
 The fixed instruction is the user's original `Hide promotions or ads` bullet, followed by `Should this post be hidden?`. True means hide. The initial checkpoint is `convaiinnovations/laya-multilingual` at revision `052592a15d198d9ad47da779604259b10b47b7aa`, matching the earlier browser evaluation. Runtime: Laya 0.4.12.
 
 The independent split manifest is `plan.json`: 16 deliberately memorized examples (8 keep / 8 hide); a broader 60-example training set including those 16; 10 validation examples; 16 real-feed test examples. The test has 10 keep / 6 hide labels and contains commercial brands held out of training, including both retained Starlink variants. Labels are the earlier assistant judgments, not newly generated training-time labels or user-confirmed truth.
