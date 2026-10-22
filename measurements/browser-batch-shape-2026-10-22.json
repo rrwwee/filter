@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "kind": "browser-batch-shape",
+  "sourceBase": "b8041b7fc53b3f6bd2b5c991a3a550ea674c4972",
+  "rawSha256": "ea89d3abd106e10f5a71607c5b0f673c51d109865d9448d042a637c305def15a",
+  "planSha256": "a53539d56239fccc48d3c4b85051f9b6eb2d3b91be60e8371f4e9afa99c743ae",
+  "driverSha256": "81f137d5b02ed64918e0c3080be3e334629a5a8ae217cdc8a7a626e8017edfd0",
+  "backends": [
+    {
+      "device": "webgpu",
+      "dtype": "q8f16",
+      "complete": true,
+      "modelReleased": true,
+      "passes": 11,
+      "elapsedMs": 2801.350000023842,
+      "maxApiBatchSequentialDelta": 0.0023085272651041655,
+      "apiDecisionFlipsAt050": 0,
+      "paddingDelta": -0.0023085272651041655,
+      "maskedTokenDelta": 0.0,
+      "batchDimensionNativeDelta": 0.0,
+      "batchDimensionPaddedDelta": 0.0,
+      "singleRepeatDelta": 0.0,
+      "clickbaitScores": {
+        "api-single-0": 0.46702790013192075,
+        "single-padded": 0.4647193728668166,
+        "single-padded-masked-zero": 0.4647193728668166,
+        "two-duplicate-native": 0.46702790013192075,
+        "four-duplicate-padded": 0.4647193728668166
+      }
+    },
+    {
+      "device": "wasm",
+      "dtype": "q8f16",
+      "complete": true,
+      "modelReleased": true,
+      "passes": 11,
+      "elapsedMs": 34577.36500000954,
+      "maxApiBatchSequentialDelta": 0.0,
+      "apiDecisionFlipsAt050": 0,
+      "paddingDelta": 0.0,
+      "maskedTokenDelta": 0.0,
+      "batchDimensionNativeDelta": 0.0,
+      "batchDimensionPaddedDelta": 0.0,
+      "singleRepeatDelta": 0.0,
+      "clickbaitScores": {
+        "api-single-0": 0.46368709393253776,
+        "single-padded": 0.46368709393253776,
+        "single-padded-masked-zero": 0.46368709393253776,
+        "two-duplicate-native": 0.46368709393253776,
+        "four-duplicate-padded": 0.46368709393253776
+      }
+    }
+  ]
+}
