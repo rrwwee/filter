@@ -12,16 +12,18 @@ The clean lead worktree has no persisted project-trust entry. The probe returned
 
 The exact local paths, current lead identity, probe output, and the proposed user action are recorded in the lead's local activation handoff. They are not portable repository settings.
 
-## Required user-mediated activation
+## Runtime boundary and required user-mediated activation
+
+This delegated task uses cloud orchestration with local execution. Current [hook documentation](https://developers.openai.com/codex/hooks) excludes local command hooks in that mode, even when the tools run on the Mac. Changing a shell cwd or assigning a project is not evidence of converting orchestration. A native local Codex or local-only Work lead is required for this proposal. No supported conversion of this managed task was established. Keep its handoff/history until a deliberate lead replacement is coordinated.
 
 Official [hook documentation](https://developers.openai.com/codex/hooks) requires a trusted project layer and review/trust of the exact non-managed hook definition. A changed definition requires review again. Use the normal Codex project-trust flow if prompted, then `/hooks` to inspect and trust this repository's Stop command. Do not use a hook-trust bypass or edit the trust database.
 
-The existing lead must also operate with the clean repository/worktree as its working directory. Setting a shell command's cwd does not change the lead's skill/hook discovery root. Preserve the dirty canonical checkout; do not reset or overwrite it just to activate the hook.
+The native local lead must operate with the clean repository/worktree as its working directory. Setting a shell command's cwd does not change the lead's skill/hook discovery root. Preserve the dirty canonical checkout; do not reset or overwrite it just to activate the hook.
 
 ## Disposable activation test after approval
 
 1. Confirm `/hooks` lists this exact command, its source file and trusted hash. If absent, stop and diagnose the runtime; do not call the hook active.
-2. Run one ephemeral, non-executive Codex test turn in the clean worktree using the same binary/build that will run the lead. Ask it for a short acknowledgment with no file edits or publication. Capture JSON/event output locally.
+2. Run one ephemeral, non-executive Codex test turn in the clean worktree using the same native local runtime/binary/build that will run the lead. Ask it for a short acknowledgment with no file edits or publication. Capture JSON/event output locally.
 3. Require actual Stop-hook start/completion events, passing command execution, the review continuation, and subsequent completion. A direct invocation of the Python file is only a contract test, not this activation test.
 4. Interrupt the disposable process if it does not settle after the expected continuation. Keep evidence; restore any test-only files. Do not change global settings.
 
