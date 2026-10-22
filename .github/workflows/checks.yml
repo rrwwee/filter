@@ -2,10 +2,13 @@ name: Evaluation checks
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, edited]
   push:
 
 permissions:
   contents: read
+  pull-requests: read
+  issues: read
 
 concurrency:
   group: evaluation-${{ github.ref }}
@@ -17,6 +20,9 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '22'
@@ -25,3 +31,8 @@ jobs:
           python-version: '3.12'
       - name: Filter model-free completion checks
         run: npm run check
+      - name: Verify explicit issue-closing intent
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/check.py publication-event --event "$GITHUB_EVENT_PATH"

@@ -4,7 +4,7 @@ One persistent Filter lead owns task selection, evidence, review, and the GitHub
 
 ## Small completion slice
 
-Use `.agents/skills/filter-complete/SKILL.md` before closing a slice. `npm run check` runs the existing artifact guard, Node/Python regression tests, and syntax checks from one entrypoint shared with GitHub Actions. It downloads no models. Passing it does not validate model quality, live browser behavior, or independent review.
+Use `.agents/skills/filter-complete/SKILL.md` before closing a slice. `npm run check` runs the existing artifact guard, Node/Python regression tests, and syntax checks from one entrypoint shared with GitHub Actions. It downloads no models. Passing it does not validate model quality, live browser behavior, or independent review. [Publication and receipt checks](publication-checks.md) add read-only metadata and completion gates through the same entrypoint.
 
 GitHub Issues is the durable technical problem buffer. The existing [planning map](https://github.com/rrwwee/filter/issues/1) and its tickets remain authoritative. Search before filing; attach measured findings to the relevant issue. The [batch score discrepancy](https://github.com/rrwwee/filter/issues/18) remains open even though its evidence is published. `docs/research/problem-buffer.md` is only an index into that backlog.
 
