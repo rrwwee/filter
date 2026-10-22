@@ -24,6 +24,8 @@ python3 tools/check.py publication --repo rrwwee/filter --base origin/main \
 
 This scans every branch commit message after the merge base, the proposed body and the entire squash message. Negation and quoting are not exemptions. Bare, qualified and GitHub URL references are normalized; unexpected references fail. Metadata-only success explicitly says the forge was not checked.
 
+Both manual and CI publication checks require exactly one valid body marker. Its normalized issue set must match the separate intended list, with no duplicate entries in either list. Missing, duplicate, malformed or conflicting markers fail even without live forge readback.
+
 Before merging, run that command again with `--pr NUMBER` against the exact reviewed head and final messages. It reads **every** `closingIssuesReferences` page, checks population counts/cursors and stable PR metadata, compares the complete set with intent, and rejects a changed head/body. Missing fields, GraphQL errors, partial populations and unavailable state fail; none means an empty set. Unexpected manual links are caught even when no closing phrase appears in text.
 
 PR CI runs the same gate using the event's body/title and explicit marker, with read-only token permissions and the actual PR head checkout. Body edits rerun it. A final manual live check is still required: manual links or the chosen squash message can change after CI. CI uses the proposed PR title/body as its squash-message candidate; pass the actual chosen full message in the final check.
@@ -44,6 +46,8 @@ python3 tools/check.py receipt --repo rrwwee/filter --file /tmp/receipt.json --p
 ```
 
 With a PR, the reviewed head must match. A merged partial slice must leave every linked unfinished criterion's issue open and outside the PR's closing set. Final assignment completion with required landing additionally checks the PR's merged state, merge ancestry on the default branch, and fully paginated successful post-merge checks including `contracts`. Declared completed issues must also read back closed after landing. An issue with unfinished acceptance cannot appear in that list. Missing, queued, failed or wrong-head checks block final completion. Receipts without required landing can validate a fully completed local-only assignment.
+
+For every receipt status, a merged PR's closing set must be a subset of the receipt's `completedIssues`; undeclared closures fail even when all listed criteria are complete. The receipt may include issues completed elsewhere in the assignment, so the two sets need not be identical.
 
 Evidence strings remain human assertions: the validator cannot prove review quality, label truth, or that the assignment was scoped correctly. It makes those assertions explicit and checks the forge consequences.
 

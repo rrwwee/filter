@@ -142,6 +142,10 @@ def publication(repository, head, messages, body, squash, intended, snapshot=Non
     expected = {issue_ref(r, repository) for r in intended}
     require(len(expected) == len(intended), 'Duplicate intended issue')
     require(all(isinstance(t, str) for t in [*messages, body, squash]), 'Publication metadata must be text')
+    marked = intended_from_body(body)
+    marked_set = {issue_ref(r, repository) for r in marked}
+    require(len(marked_set) == len(marked), 'Duplicate issue in PR body marker')
+    require(marked_set == expected, 'PR body marker differs from explicit completed-issue set')
     found = set().union(*(closing_references(t, repository) for t in [*messages, body, squash]))
     require(found <= expected, 'Unexpected closing references: ' + ', '.join(sorted(found - expected)))
     if snapshot is not None:
@@ -183,6 +187,7 @@ def completion(receipt, repository, forge=None, pr=None):
         snapshot = forge.snapshot(pr)
         require(snapshot['headRefOid'] == receipt['head'], 'Receipt head differs from forge head')
         if snapshot['merged']:
+            require(snapshot['closing'] <= intended, 'Merged PR closed issues absent from receipt completed-issue set')
             require(not (snapshot['closing'] & unfinished), 'Merged partial slice closed unfinished acceptance')
             for issue in unfinished:
                 require(forge.issue_state(issue) == 'open', 'Unfinished acceptance issue is not open')

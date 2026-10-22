@@ -9,32 +9,71 @@ SPEC = importlib.util.spec_from_file_location('publication', PATH)
 P = importlib.util.module_from_spec(SPEC); SPEC.loader.exec_module(P)
 HEAD, MERGE = 'a'*40, 'b'*40
 REPO = 'rrwwee/filter'
+BODY = 'Related to #18\n<!-- filter-completed-issues: [] -->'
 
 
 def page(nodes=(), more=False, cursor=None, total=None, merged=False):
     links=[{'number':n, 'repository':{'nameWithOwner':repo}} for repo,n in nodes]
     return {'data':{'repository':{'nameWithOwner':REPO,'defaultBranchRef':{'name':'main','target':{'oid':MERGE}},'pullRequest':{
-        'number':23,'state':'MERGED' if merged else 'OPEN','headRefOid':HEAD,'title':'Research update','body':'Related to #18',
+        'number':23,'state':'MERGED' if merged else 'OPEN','headRefOid':HEAD,'title':'Research update','body':BODY,
         'baseRefName':'main','headRepository':{'nameWithOwner':REPO},'merged':merged,'mergeCommit':{'oid':MERGE} if merged else None,
         'closingIssuesReferences':{'totalCount':len(nodes) if total is None else total,'nodes':links,'pageInfo':{'hasNextPage':more,'endCursor':cursor}}}}}}
 
 
 class PublicationTests(unittest.TestCase):
+    def test_manual_command_reconciles_body_and_file_intent(self):
+        import contextlib
+        import io
+        import json
+        import tempfile
+        from unittest.mock import patch
+
+        cases = (
+            ('Related to #18', [], 1),
+            ('<!-- filter-completed-issues: [] --><!-- filter-completed-issues: [] -->', [], 1),
+            ('<!-- filter-completed-issues: ["rrwwee/filter#18"] -->', [], 1),
+            (BODY, [REPO+'#18'], 1),
+            ('<!-- filter-completed-issues: ["rrwwee/filter#18", "RRWWEE/FILTER#18"] -->', [REPO+'#18'], 1),
+            ('<!-- filter-completed-issues: invalid -->', [], 1),
+            (BODY, [], 0),
+            ('<!-- filter-completed-issues: ["RRWWEE/FILTER#18"] -->', [REPO+'#18'], 0),
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root/'squash').write_text('Guard update')
+            for body, intended, expected in cases:
+                (root/'body').write_text(body)
+                (root/'intent').write_text(json.dumps(intended))
+                def read(command):
+                    if command[0] == 'gh':
+                        response = page([(REPO, 18)] if intended else [])
+                        response['data']['repository']['pullRequest']['body'] = body
+                        return json.dumps(response)
+                    if command[1] == 'log':return ''
+                    return HEAD if command == ['git', 'rev-parse', 'HEAD'] else MERGE
+                for live in (False, True):
+                    args = ['publication', '--repo', REPO, '--base', 'main',
+                            '--body', str(root/'body'), '--squash', str(root/'squash'),
+                            '--completed-issues', str(root/'intent')]
+                    if live:args += ['--pr', '23']
+                    with self.subTest(body=body, live=live), patch.object(P, 'run', side_effect=read), contextlib.redirect_stdout(io.StringIO()):
+                        self.assertEqual(P.main(args), expected)
+
     def test_negation_case_colon_and_cross_repository_forms(self):
         for phrase in ('Does not close #18','CLOSES: #18','fixed:#18','Resolves other/repo#9',
                        'closed https://github.com/Other/Repo/issues/9','fixes #18, #19'):
             found=P.closing_references(phrase,REPO)
             self.assertTrue(found,phrase)
-            with self.assertRaises(P.GateError):P.publication(REPO,HEAD,[phrase],'Related to #18','Research update',[])
+            with self.assertRaises(P.GateError):P.publication(REPO,HEAD,[phrase],BODY,'Research update',[])
         self.assertEqual(P.closing_references('Related to #18 and other/repo#9',REPO),set())
         self.assertEqual(P.closing_references('Resolved: OTHER/Repo#9',REPO),{'other/repo#9'})
 
     def test_all_publication_surfaces_are_scanned(self):
         for surface in range(3):
-            text=[[], 'Related to #18', 'Research update']
-            text[surface]=['Does not close #18'] if surface==0 else 'Does not close #18'
+            text=[[], BODY, 'Research update']
+            text[surface]=['Does not close #18'] if surface==0 else 'Does not close #18' + ('\n<!-- filter-completed-issues: [] -->' if surface==1 else '')
             with self.assertRaises(P.GateError):P.publication(REPO,HEAD,*text,[])
-        out=P.publication(REPO,HEAD,['Related to #18'],'Related to #18','Research update',[])
+        out=P.publication(REPO,HEAD,['Related to #18'],BODY,'Research update',[])
         self.assertFalse(out['forgeChecked']);self.assertFalse(out['mergeAuthorization'])
 
     def test_complete_paginated_server_set_and_unexpected_manual_link(self):
@@ -44,8 +83,10 @@ class PublicationTests(unittest.TestCase):
         snapshot=forge.snapshot(23)
         self.assertEqual(snapshot['closing'],{REPO+'#18','other/repo#9'})
         self.assertIn('after=next',calls[1])
-        with self.assertRaises(P.GateError):P.publication(REPO,HEAD,[],'Related to #18','Research update',[],snapshot)
-        result=P.publication(REPO,HEAD,[],'Related to #18','Research update',[REPO+'#18','other/repo#9'],snapshot)
+        with self.assertRaises(P.GateError):P.publication(REPO,HEAD,[],BODY,'Research update',[],snapshot)
+        body = 'Related to #18\n<!-- filter-completed-issues: ["rrwwee/filter#18", "other/repo#9"] -->'
+        snapshot['body'] = body
+        result=P.publication(REPO,HEAD,[],body,'Research update',[REPO+'#18','other/repo#9'],snapshot)
         self.assertTrue(result['forgeChecked'])
 
     def test_unknown_or_incomplete_server_data_never_becomes_empty(self):
@@ -71,10 +112,10 @@ class PublicationTests(unittest.TestCase):
 
     def test_live_head_body_and_explicit_intent_must_agree(self):
         snapshot=P.Forge(REPO,lambda _:page()).snapshot(23)
-        P.publication(REPO,HEAD,[],'Related to #18','Update',[],snapshot)
+        P.publication(REPO,HEAD,[],BODY,'Update',[],snapshot)
         for key,value in [('headRefOid','c'*40),('body','Changed'),('state','CLOSED')]:
             changed=copy.deepcopy(snapshot);changed[key]=value
-            with self.assertRaises(P.GateError):P.publication(REPO,HEAD,[],'Related to #18','Update',[],changed)
+            with self.assertRaises(P.GateError):P.publication(REPO,HEAD,[],BODY,'Update',[],changed)
 
 
     def test_large_connection_consumes_the_final_page(self):
@@ -102,7 +143,7 @@ class PublicationTests(unittest.TestCase):
             git('commit','--allow-empty','-m','Related to #19');head=git('rev-parse','HEAD')
             with patch.object(P,'run',side_effect=lambda command:subprocess.check_output(command,cwd=directory,text=True)):
                 messages=P.branch_messages(base,head)
-            with self.assertRaises(P.GateError):P.publication(REPO,head,messages,'Related to #18','Update',[])
+            with self.assertRaises(P.GateError):P.publication(REPO,head,messages,BODY,'Update',[])
 
 
     def test_event_rejects_stale_live_title(self):
@@ -124,6 +165,29 @@ class PublicationTests(unittest.TestCase):
 
 
 class ReceiptTests(unittest.TestCase):
+    def test_assignment_completion_rejects_undeclared_merged_closure(self):
+        receipt = self.receipt('assignment_complete')
+        receipt['acceptance'][0].update(complete=True, evidence='Synthetic acceptance passed')
+        def reader(args):
+            if args[0] == 'graphql':return page([(REPO, 19)], merged=True)
+            return self.reader(args)
+        for landing in (True, False):
+            for status in ('assignment_complete', 'local_complete', 'waiting_for_landing', 'blocked'):
+                receipt.update(landingRequired=landing, status=status, blocker='Synthetic blocker')
+                with self.subTest(landing=landing, status=status), self.assertRaisesRegex(P.GateError, 'absent from receipt'):
+                    P.completion(receipt, REPO, P.Forge(REPO, reader), 23)
+
+    def test_assignment_completion_accepts_declared_merged_closure(self):
+        receipt = self.receipt('assignment_complete')
+        receipt['acceptance'][0].update(complete=True, evidence='Synthetic acceptance passed')
+        receipt['completedIssues'] = [REPO+'#18']
+        def reader(args):
+            if args[0] == 'graphql':return page([(REPO, 18)], merged=True)
+            if '/issues/' in args[0]:return {'number':18, 'state':'closed'}
+            return self.reader(args)
+        result = P.completion(receipt, REPO, P.Forge(REPO, reader), 23)
+        self.assertTrue(result['assignmentComplete'] and result['landingVerified'])
+
     def receipt(self,status='local_complete'):
         return {'schema':1,'assignment':'A bounded slice','status':status,'head':HEAD,'landingRequired':True,'completedIssues':[],
                 'acceptance':[{'id':'criterion','issue':REPO+'#18','complete':False}]}
