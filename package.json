@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node prototypes/model-evaluation/server.mjs",
+    "test": "node --test tests/*.mjs && python3 -m unittest discover -s tests -v"
+  },
+  "dependencies": {
+    "@opendecider/web": "0.9.0",
+    "@r4ai/laya-web": "0.2.0"
+  }
+}
