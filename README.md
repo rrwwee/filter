@@ -92,3 +92,9 @@ quality. They flag the empty final `New combinations` slice and distinguish
 correlated instruction/post pairs from post counts. See the
 [fine-tuning README](prototypes/model-finetuning/README.md#public-evidence-check-no-weights-or-private-data-required)
 for the synthetic fixture and limits of reproducibility.
+
+GitHub Actions runs `npm test`, Python/JavaScript syntax checks, and
+`python3 tools/check_repository.py` on pushes and pull requests. The checks use
+standard-library fixtures without downloading models or reading private data.
+The repository guard rejects known private-artifact paths and credential
+patterns; it is a heuristic safeguard, not a guarantee that content is public.

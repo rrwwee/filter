@@ -82,13 +82,15 @@ def read_dataset(directory, required_test_families=()):
     return manifest, data
 
 
-def checkpoint_identity(directory):
+def checkpoint_identity(directory, *, include_cache=True, reject_symlinks=True):
     """Hash actual local files; a fingerprint is not proof of upstream origin."""
     directory = Path(directory)
     require(directory.is_dir(), 'checkpoint directory missing')
     files = {}
     for path in sorted(directory.rglob('*')):
-        require(not path.is_symlink(), 'checkpoint symlink is not a stable artifact')
+        if not include_cache and '.cache' in path.relative_to(directory).parts:
+            continue
+        require(not reject_symlinks or not path.is_symlink(), 'checkpoint symlink is not a stable artifact')
         if path.is_file():
             digest = hashlib.sha256()
             with path.open('rb') as stream:
@@ -99,6 +101,20 @@ def checkpoint_identity(directory):
     return {'files': files, 'sha256': hashlib.sha256(json.dumps(files, sort_keys=True).encode()).hexdigest()}
 
 
+def binary_record_logits(record, expected_hide):
+    """Validate the runtime's NOUL calibration record before assigning a source ID."""
+    require(len(record) == 4, 'calibration record must have four fields')
+    kind, values, target, count = record
+    require(kind == 2 and count == 2, 'record must be a binary noul question')
+    require(type(expected_hide) is bool, 'source hide label must be boolean')
+    require(target is not None and list(target) == ([0., 1.] if expected_hide else [1., 0.]),
+            'calibration target differs from source label')
+    require(len(values) == 2, 'binary hide decision requires exactly two logits')
+    z = [float(value) for value in values]
+    require(all(math.isfinite(value) for value in z), 'nonfinite logit')
+    return z
+
+
 def prediction_rows(rows, records):
     """Convert binary calibration records without silent zip truncation."""
     records = list(records)
@@ -106,11 +122,7 @@ def prediction_rows(rows, records):
     require(bool(rows), 'no input rows')
     out = []
     for row, record in zip(rows, records):
-        require(len(record) == 4, 'calibration record must have four fields')
-        values = record[1]
-        require(len(values) == 2, 'binary hide decision requires exactly two logits')
-        z = [float(value) for value in values]
-        require(all(math.isfinite(value) for value in z), 'nonfinite logit')
+        z = binary_record_logits(record, row['expected']['hide'])
         exp = [math.exp(value - max(z)) for value in z]
         p = [value / sum(exp) for value in exp]
         out.append({key: row[key] for key in ('id',) + IDENTITY} | {

@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import resource
 import time
+from evaluation_contract import binary_record_logits, checkpoint_identity
 
 
 def digest(path):
@@ -19,11 +20,7 @@ def digest(path):
 
 def fingerprint(directory):
     # Exclude cache/lock metadata; identify every file actually supplied to the loader.
-    files = {str(p.relative_to(directory)): digest(p) for p in sorted(directory.rglob('*'))
-             if p.is_file() and '.cache' not in p.relative_to(directory).parts}
-    if not files:
-        raise ValueError('empty checkpoint')
-    return {'files': files, 'sha256': hashlib.sha256(json.dumps(files, sort_keys=True).encode()).hexdigest()}
+    return checkpoint_identity(directory, include_cache=False, reject_symlinks=False)
 
 
 def wilson(correct, count):
@@ -92,13 +89,7 @@ def run(directory, checkpoint, name):
             records = calibration_records(model, tokenizer, [item], torch.device('cpu'), cfg['max_len'], cfg['head_max_len'], batch_size=1)
             if len(records) != 1:
                 raise ValueError('prediction population mismatch')
-            kind, logits, target, count = records[0]
-            expected = [0., 1.] if case['expected_hide'] else [1., 0.]
-            if kind != 2 or count != 2 or list(target) != expected or len(logits) != 2:
-                raise ValueError('question/label polarity mismatch')
-            values = [float(x) for x in logits]
-            if not all(math.isfinite(x) for x in values):
-                raise ValueError('nonfinite logits')
+            values = binary_record_logits(records[0], case['expected_hide'])
             exp = [math.exp(x-max(values)) for x in values]
             predictions.append({'id': case['id'], 'slice': case['slice'], 'expected_hide': case['expected_hide'],
                                 'p_hide': exp[1]/sum(exp), 'logits': values})

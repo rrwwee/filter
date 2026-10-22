@@ -43,7 +43,7 @@ class ContractTests(unittest.TestCase):
         (self.path / 'manifest.json').write_text(json.dumps(self.manifest))
 
     def predictions(self, split='test'):
-        return m.prediction_rows(self.data[split], [(None, [0., 1.] if r['expected']['hide'] else [1., 0.], None, None) for r in self.data[split]])
+        return m.prediction_rows(self.data[split], [(2, [0., 1.] if r['expected']['hide'] else [1., 0.], [0., 1.] if r['expected']['hide'] else [1., 0.], 2) for r in self.data[split]])
 
     def results(self):
         return {'plan': {'dataset_hashes': self.manifest['hashes']}, 'test_unlocked_after_training': True,
@@ -107,7 +107,12 @@ class ContractTests(unittest.TestCase):
 
     def test_converter_rejects_nonbinary_and_nonfinite_logits(self):
         for logits in ([0.], [0., 1., 2.], [float('nan'), 1.], [0., float('inf')]):
-            with self.assertRaises(ValueError): m.prediction_rows(self.data['test'], [(None, logits, None, None)] * 2)
+            with self.assertRaises(ValueError): m.binary_record_logits((2, logits, [1., 0.], 2), False)
+
+    def test_converter_rejects_wrong_calibration_target_kind_and_count(self):
+        for record in [(2, [0., 10.], [0., 1.], 2), (0, [0., 10.], [1., 0.], 2), (2, [0., 10.], [1., 0.], 3)]:
+            with self.assertRaises(ValueError): m.binary_record_logits(record, False)
+        self.assertEqual(m.binary_record_logits((2, [0., 10.], [1., 0.], 2), False), [0., 10.])
 
     def test_prediction_population_and_identity(self):
         good = self.predictions()

@@ -61,7 +61,7 @@ class PipelineTests(unittest.TestCase):
             def calibration_records(model, tokenizer, items, *args, **kwargs):
                 # This assertion fails on the original reused-comparator-encoding bug.
                 assert all(encoded_tokenizer == model.identity for encoded_tokenizer, _ in items)
-                return [(None, [0., 2.] if label else [2., 0.], None, None) for _, label in items]
+                return [(2, [0., 2.] if label else [2., 0.], [0., 1.] if label else [1., 0.], 2) for _, label in items]
             def save_checkpoint(model, tokenizer, cfg, path):
                 path = Path(path); path.mkdir(exist_ok=True)
                 (path / 'weights.json').write_text(json.dumps({'tokenizer': tokenizer}))
