@@ -111,3 +111,13 @@ test('write queue preserves arrival order across delays and failures',async()=>{
   await new Promise(resolve=>setImmediate(resolve));assert.deepEqual(calls,[1]);release();
   await assert.rejects(first);await second;assert.deepEqual(calls,[1,2]);
 });
+
+test('recorded preview exposes only its named local catalog and assets',async t=>{
+  const f=await fixture(t);
+  await fs.writeFile(path.join(f.root,'local-results/development-score-replay.json'),JSON.stringify({kind:'synthetic-replay'}));
+  await fs.writeFile(path.join(f.root,'local-results/unrelated-private.json'),'PRIVATE');
+  await fs.writeFile(path.join(f.root,'prototypes/model-evaluation/pending-posts.html'),'<title>Replay</title>');
+  assert.equal((await fetch(f.url+'/prototypes/model-evaluation/pending-posts.html')).status,200);
+  assert.deepEqual(await(await fetch(f.url+'/local-results/development-score-replay.json')).json(),{kind:'synthetic-replay'});
+  assert.equal((await fetch(f.url+'/local-results/unrelated-private.json')).status,404);
+});

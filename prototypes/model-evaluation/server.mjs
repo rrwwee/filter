@@ -5,8 +5,8 @@ import {randomUUID} from 'node:crypto';
 import {pathToFileURL} from 'node:url';
 import {validateLabelSnapshot} from './label-state.mjs';
 
-const assets = new Set(['index.html','app.mjs','contracts.mjs','label.html','labeling.mjs','label-state.mjs','autosave.mjs','report.html']);
-const dataFiles = new Set(['labeling-cases.json','latest-labels.json','bullet-cases.json']);
+const assets = new Set(['index.html','app.mjs','contracts.mjs','label.html','labeling.mjs','label-state.mjs','autosave.mjs','report.html','pending-posts.html','score-preview.mjs','score-replay.mjs']);
+const dataFiles = new Set(['labeling-cases.json','latest-labels.json','bullet-cases.json','development-score-replay.json']);
 const dependencyRoots = ['@opendecider/web/dist/','@opendecider/client/dist/','@huggingface/tokenizers/dist/','onnxruntime-web/dist/','@r4ai/laya-web/dist/'];
 const types = {'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.json':'application/json','.wasm':'application/wasm','.css':'text/css'};
 const fail = (status, message) => Object.assign(new Error(message), {status});
