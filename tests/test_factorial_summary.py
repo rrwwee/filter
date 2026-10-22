@@ -33,3 +33,16 @@ class SummaryTests(unittest.TestCase):
         for mutate in [lambda r:r.pop(),lambda r:r.append(copy.deepcopy(r[0])),lambda r:r[-1].update(expected_hide=False)]:
             bad=copy.deepcopy(data);mutate(bad['rows'])
             with self.assertRaises(ValueError):m.summarize(bad,variants)
+
+    def test_duplicate_pair_members_and_changing_metadata_fail(self):
+        data,variants=self.fixture()
+        duplicates=copy.deepcopy(data)
+        for v in variants:
+            extra=copy.deepcopy(next(r for r in data['rows'] if r['variant']==v['id'] and r['id']=='False-False'))
+            extra['id']='another-case';duplicates['rows'].append(extra)
+        with self.assertRaisesRegex(ValueError,'duplicate semantic pair'):
+            m.summarize(duplicates,variants)
+        changed=copy.deepcopy(data)
+        changed['rows'][5]['group']='different'
+        with self.assertRaisesRegex(ValueError,'metadata changes'):
+            m.summarize(changed,variants)

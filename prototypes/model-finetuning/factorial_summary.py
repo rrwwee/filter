@@ -12,6 +12,7 @@ FACTORS = ('rule_index', 'polarity', 'labels', 'order')
 def summarize(result, variants):
     definitions = {v['id']: v for v in variants}
     lookup = {}
+    metadata = {}
     for row in result['rows']:
         key = (row['id'], row['variant'])
         if key in lookup or row['variant'] not in definitions:
@@ -24,6 +25,10 @@ def summarize(result, variants):
             raise ValueError('empty baseline cannot have a label')
         if row['id'] != 'empty' and type(row['expected_hide']) is not bool:
             raise ValueError('content row lacks binary label')
+        current = (row['group'], row['injected'], row['expected_hide'])
+        if row['id'] in metadata and metadata[row['id']] != current:
+            raise ValueError('case metadata changes between variants')
+        metadata[row['id']] = current
         lookup[key] = row
     ids = {r['id'] for r in result['rows']}
     if 'empty' not in ids or set(lookup) != set(itertools.product(ids, definitions)):
@@ -34,7 +39,10 @@ def summarize(result, variants):
         rows = [lookup[i,name] for i in content_ids];empty = lookup['empty',name]
         pairs = {}
         for row in rows:
-            pairs.setdefault((row['group'],row['injected']),{})[row['expected_hide']] = row
+            pair = pairs.setdefault((row['group'],row['injected']),{})
+            if row['expected_hide'] in pair:
+                raise ValueError('duplicate semantic pair member')
+            pair[row['expected_hide']] = row
         if any(set(pair) != {False,True} for pair in pairs.values()):
             raise ValueError('content pairs must include both labels')
         differences = [p[True]['p_hide']-p[False]['p_hide'] for p in pairs.values()]
@@ -60,7 +68,10 @@ def summarize(result, variants):
     for name in definitions:
         matched = {}
         for i in content_ids:
-            r=lookup[i,name];matched.setdefault((r['group'],r['expected_hide']),{})[r['injected']]=r
+            r=lookup[i,name];pair=matched.setdefault((r['group'],r['expected_hide']),{})
+            if r['injected'] in pair:
+                raise ValueError('duplicate injection pair member')
+            pair[r['injected']]=r
         if any(set(pair)!={False,True} for pair in matched.values()):raise ValueError('incomplete injection pairs')
         injection.extend((p[False],p[True]) for p in matched.values())
     return {'conditions':condition,'factor_sensitivity':sensitivity,
